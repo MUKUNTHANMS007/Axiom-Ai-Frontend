@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fetchSavedStacks, fetchHistory, assignTask, searchUsers, createInvite, createProject, type TaskAssignment } from '../services/api';
+import { fetchSavedStacks, fetchHistory, assignTask, searchUsers, createInvite, createProject, fetchProject, type TaskAssignment } from '../services/api';
 import TechIcon from '@/components/ui/tech-icon';
 import { supabase } from '@/lib/supabase';
 
@@ -15,10 +15,7 @@ const TeamStack = () => {
   const [assignment, setAssignment] = useState<TaskAssignment | null>(null);
   const [assignError, setAssignError] = useState<string | null>(null);
 
-  const [dynamicMembers, setDynamicMembers] = useState([
-    { name: 'Mukunthan', role: 'Architect', skills: ['System Design', 'FastAPI', 'React'], color: 'bg-primary' },
-    { name: 'Aether AI', role: 'Synthesis engine', skills: ['LLM', 'Analysis', 'Roadmap'], color: 'bg-tertiary' },
-  ]);
+  const [dynamicMembers, setDynamicMembers] = useState<any[]>([]);
   const [isOptimizing, setIsOptimizing] = useState(false);
 
   // Invite modal state
@@ -35,21 +32,46 @@ const TeamStack = () => {
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
 
   useEffect(() => {
-    const getStacks = async () => {
+    const initPage = async () => {
       const localSession = localStorage.getItem("vibe_session");
       const user = localSession ? JSON.parse(localSession).user : null;
       if (!user) return;
 
       try {
-        const data = await fetchSavedStacks(user.name);
-        setSavedStacks(data);
+        // 1. Fetch stacks
+        const stacks = await fetchSavedStacks(user.name);
+        setSavedStacks(stacks);
+
+        // 2. Load Project & Members
+        const projectId = await getOrCreateProjectId();
+        const projectData = await fetchProject(projectId);
+        
+        if (projectData && projectData.project_members) {
+          const members = projectData.project_members.map((m: any) => ({
+            name: m.user_id, // For now user_id is the username in our system
+            role: m.role === 'leader' ? 'Lead Architect' : 'Architect',
+            skills: m.role === 'leader' 
+              ? ['System Architecture', 'Strategy', 'Infrastructure']
+              : ['Full-stack', 'API Design', 'PostgreSQL'],
+            color: m.role === 'leader' ? 'bg-primary' : 'bg-indigo-500'
+          }));
+          setDynamicMembers(members);
+        } else {
+          // Fallback if no members found somehow (should at least have owner)
+          setDynamicMembers([{ 
+            name: user.name, 
+            role: 'Lead Architect', 
+            skills: ['Generalist', 'Product Architecture'], 
+            color: 'bg-primary' 
+          }]);
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Initialization error:", err);
       } finally {
         setLoading(false);
       }
     };
-    getStacks();
+    initPage();
   }, []);
 
   const handleViewStack = async (stackName: string) => {
@@ -240,7 +262,7 @@ const TeamStack = () => {
             <div className="space-y-3">
               <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Core Competencies</h4>
               <div className="flex flex-wrap gap-2">
-                {member.skills.map(skill => (
+                {member.skills.map((skill: string) => (
                   <span key={skill} className="px-3 py-1 bg-white/5 rounded-full text-xs text-slate-300 border border-white/10 group-hover:border-primary/10 transition-colors">
                     {skill}
                   </span>
