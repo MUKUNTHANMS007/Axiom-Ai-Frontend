@@ -64,7 +64,8 @@ const Dashboard = () => {
 
       navigate('/recommendations', { state: { result } });
     } catch (err: any) {
-      setError(err.message || 'Something went wrong during analysis');
+      const errorMsg = err.message || 'Something went wrong during analysis';
+      setError(errorMsg.includes('fetch') ? 'The AI engine is waking up... please try again in 30 seconds.' : errorMsg);
     } finally {
       setLoading(false);
     }
