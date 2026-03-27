@@ -149,7 +149,6 @@ const SignInBlock = ({ initialMode = "signin", inviteToken }: SignInBlockProps) 
           .insert({
             'User Id': Math.floor(Math.random() * 1000000), // Random numeric ID
             'User Name': formData.username,
-            'Full Name': `${formData.firstName} ${formData.lastName}`, // Store full name separately if needed
             'Password': formData.password,
           });
         
