@@ -46,6 +46,9 @@ const TechIcon: React.FC<TechIconProps> = ({
     'html5': 'html5',
     'css': 'css3',
     'css3': 'css3',
+    'htmlcss': 'html5',
+    'web': 'html5',
+    'frontend': 'react',
     'sass': 'sass',
     // Frameworks
     'react': 'react',
@@ -114,6 +117,9 @@ const TechIcon: React.FC<TechIconProps> = ({
     // Cloud / Infra
     'aws': 'amazonaws',
     'amazon': 'amazonaws',
+    'amazonwebservices': 'amazonaws',
+    'amazon-aws': 'amazonaws',
+    'cloud': 'amazonaws',
     'gcp': 'googlecloud',
     'googlecloud': 'googlecloud',
     'azure': 'microsoftazure',
