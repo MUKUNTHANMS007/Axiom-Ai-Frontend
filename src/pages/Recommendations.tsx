@@ -218,6 +218,17 @@ const Recommendations = () => {
                   </div>
                 </div>
               ))}
+              
+              {/* Vercel Friction Troubleshooting */}
+              <div className="bg-primary/5 border border-primary/20 p-5 rounded-xl">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined text-primary text-sm" data-icon="info">info</span>
+                  <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Frictionless Sharing</h4>
+                </div>
+                <p className="text-[10px] text-slate-400 leading-relaxed">
+                  Experiencing a "Vercel Sign-In" wall on shared links? Disable <span className="text-white font-bold italic">"Deployment Protection"</span> in Vercel Settings or deploy to <span className="text-white font-bold italic">Netlify</span> for 100% public access.
+                </p>
+              </div>
             </div>
           </section>
 
