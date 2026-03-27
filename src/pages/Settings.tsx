@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User as UserIcon, 
-  Palette, 
   Shield, 
   Database, 
   LogOut, 
@@ -10,9 +9,6 @@ import {
   ChevronRight,
   Cpu,
   Save,
-  Moon,
-  Sun,
-  Monitor,
   Loader2,
   AlertCircle,
   Globe, 
@@ -28,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 
-type SettingsTab = "profile" | "appearance" | "integrations" | "security";
+type SettingsTab = "profile" | "integrations" | "security";
 
 const Settings = () => {
     const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
@@ -51,23 +47,13 @@ const Settings = () => {
         photo_url: ""
     });
 
-    const [appearance, setAppearance] = useState({
-        theme: "dark",
-        dynamicBackgrounds: true,
-        reducedMotion: false
-    });
-
     const [skillInput, setSkillInput] = useState("");
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-    const applyTheme = (theme: string) => {
-        const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.classList.toggle('dark', isDark);
-        if (isDark) {
-            document.documentElement.style.backgroundColor = '#0b0b0d';
-        } else {
-            document.documentElement.style.backgroundColor = '#ffffff';
-        }
+    const applyTheme = () => {
+        // Force Dark Mode to preserve background animations
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.backgroundColor = '#0b0b0d';
     };
 
     // Fetch user data on mount
@@ -103,12 +89,7 @@ const Settings = () => {
                         email: "mukunthan@axiom.ai",
                         photo_url: data['Photo URL'] || ""
                     });
-                    setAppearance({
-                        theme: data['Theme'] || "dark",
-                        dynamicBackgrounds: data['Dynamic Backgrounds'] ?? true,
-                        reducedMotion: data['Reduced Motion'] ?? false
-                    });
-                    applyTheme(data['Theme'] || "dark");
+                    applyTheme();
                 }
             } catch (err: any) {
                 console.error("Error fetching settings:", err);
@@ -139,20 +120,18 @@ const Settings = () => {
                     'GitHub URL': profile.github,
                     'LinkedIn URL': profile.linkedin,
                     'Portfolio URL': profile.portfolio,
-                    'Theme': appearance.theme,
-                    'Dynamic Backgrounds': appearance.dynamicBackgrounds,
-                    'Reduced Motion': appearance.reducedMotion,
-                    'Photo URL': profile.photo_url
+                    'Photo URL': profile.photo_url,
+                    'Theme': 'dark'
                 })
                 .eq('User Id', userId);
 
             if (updateError) throw updateError;
 
             // Update localStorage session
-            const updatedSession = { ...session, user: { ...session.user, 'Photo URL': profile.photo_url, 'Theme': appearance.theme } };
+            const updatedSession = { ...session, user: { ...session.user, 'Photo URL': profile.photo_url, 'Theme': 'dark' } };
             localStorage.setItem("vibe_session", JSON.stringify(updatedSession));
 
-            applyTheme(appearance.theme);
+            applyTheme();
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 3000);
         } catch (err: any) {
@@ -249,7 +228,6 @@ const Settings = () => {
 
     const sidebarItems = [
         { id: "profile", label: "Profile", icon: UserIcon },
-        { id: "appearance", label: "Appearance", icon: Palette },
         { id: "integrations", label: "Integrations", icon: Database },
         { id: "security", label: "Security", icon: Shield },
     ];
@@ -364,7 +342,7 @@ const Settings = () => {
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
-                                                    )}
+                                                     )}
                                                     <input 
                                                         type="file" 
                                                         ref={fileInputRef}
@@ -464,85 +442,6 @@ const Settings = () => {
                                                             />
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {activeTab === "appearance" && (
-                                        <div className="space-y-10">
-                                            <div>
-                                                <h2 className="text-2xl font-bold mb-2 flex items-center gap-3">
-                                                    <Palette className="text-primary" />
-                                                    Visual Interface
-                                                </h2>
-                                                <p className="text-muted-foreground text-sm">Customize how you interact with the Axiom OS.</p>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                {[
-                                                    { id: "light", icon: Sun },
-                                                    { id: "dark", icon: Moon },
-                                                    { id: "system", icon: Monitor }
-                                                ].map((t) => (
-                                                    <button
-                                                        key={t.id}
-                                                        onClick={() => setAppearance({...appearance, theme: t.id})}
-                                                        className={`p-6 rounded-2xl border transition-all flex flex-col items-center gap-4 ${
-                                                            appearance.theme === t.id 
-                                                                ? "bg-primary/20 border-primary shadow-lg" 
-                                                                : "bg-muted border-border hover:border-muted-foreground/30"
-                                                        }`}
-                                                    >
-                                                        <t.icon className={`w-8 h-8 ${appearance.theme === t.id ? 'text-primary' : 'text-muted-foreground'}`} />
-                                                        <span className={`font-bold uppercase text-[10px] tracking-widest ${appearance.theme === t.id ? 'text-primary' : 'text-muted-foreground'}`}>{t.id} Mode</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-
-                                            <Separator />
-
-                                            <div className="space-y-6">
-                                                <div className="flex items-center justify-between p-4 bg-muted border border-border rounded-2xl transition-colors">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                                                            <Monitor className="w-5 h-5" />
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="text-sm font-bold">Dynamic Backgrounds</h4>
-                                                            <p className="text-xs text-muted-foreground">Enable high-performance animated beams on dashboard.</p>
-                                                        </div>
-                                                    </div>
-                                                    <button 
-                                                        onClick={() => setAppearance({...appearance, dynamicBackgrounds: !appearance.dynamicBackgrounds})}
-                                                        className={`w-12 h-6 rounded-full transition-all relative ${appearance.dynamicBackgrounds ? "bg-primary" : "bg-muted-foreground/30"}`}
-                                                    >
-                                                        <motion.div 
-                                                            animate={{ x: appearance.dynamicBackgrounds ? 24 : 4 }}
-                                                            className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-md"
-                                                        />
-                                                    </button>
-                                                </div>
-
-                                                <div className="flex items-center justify-between p-4 bg-muted border border-border rounded-2xl transition-colors">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400">
-                                                            <Cpu className="w-5 h-5" />
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="text-sm font-bold">Reduced Motion</h4>
-                                                            <p className="text-xs text-muted-foreground">Minimize animations to optimize performance.</p>
-                                                        </div>
-                                                    </div>
-                                                    <button 
-                                                        onClick={() => setAppearance({...appearance, reducedMotion: !appearance.reducedMotion})}
-                                                        className={`w-12 h-6 rounded-full transition-all relative ${appearance.reducedMotion ? "bg-primary" : "bg-muted-foreground/30"}`}
-                                                    >
-                                                        <motion.div 
-                                                            animate={{ x: appearance.reducedMotion ? 24 : 4 }}
-                                                            className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-md"
-                                                        />
-                                                    </button>
                                                 </div>
                                             </div>
                                         </div>

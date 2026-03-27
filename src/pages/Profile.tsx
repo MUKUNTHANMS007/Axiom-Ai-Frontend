@@ -251,12 +251,19 @@ const Profile = () => {
                                     <Code2 className="w-4 h-4" /> Technical DNA
                                 </h3>
                                 <div className="flex flex-wrap gap-3">
-                                    {user['Skills'] && user['Skills'].length > 0 ? user['Skills'].map((skill: string) => (
+                                    {/* Show manual skills first, then computed skills from history if empty */}
+                                    {((user['Skills'] && user['Skills'].length > 0) ? user['Skills'] : (
+                                        Array.from(new Set(history.flatMap(h => [
+                                            ...(h.result_json.languages?.map(l => l.name) || []),
+                                            ...(h.result_json.frameworks?.map(f => f.name) || [])
+                                        ]))).slice(0, 10)
+                                    )).map((skill: string) => (
                                         <Badge key={skill} className="px-4 py-2 bg-muted border border-border/50 text-foreground font-black uppercase tracking-widest text-[10px] hover:border-primary/50 transition-all duration-300">
                                             {skill}
                                         </Badge>
-                                    )) : (
-                                        <p className="text-xs text-muted-foreground italic">No technical protocols defined yet.</p>
+                                    ))}
+                                    {(!user['Skills'] || user['Skills'].length === 0) && history.length === 0 && (
+                                        <p className="text-xs text-muted-foreground italic">No technical protocols synthesized yet.</p>
                                     )}
                                 </div>
                             </Card>

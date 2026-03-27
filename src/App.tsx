@@ -27,23 +27,15 @@ function App() {
   const [session, setSession] = useState<any>(undefined);
 
   useEffect(() => {
-    const applyTheme = (theme: string) => {
-      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      document.documentElement.classList.toggle('dark', isDark);
-      if (isDark) {
-        document.documentElement.style.backgroundColor = '#000';
-      } else {
-        document.documentElement.style.backgroundColor = '#fff';
-      }
+    const applyTheme = () => {
+      // Force Dark Mode to preserve background animations
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.backgroundColor = '#000';
     };
 
-    const fetchTheme = async (userId: any) => {
-        const { data } = await supabase.from('User').select('Theme').eq('User Id', userId).single();
-        if (data?.Theme) {
-            applyTheme(data.Theme);
-        } else {
-            applyTheme('dark');
-        }
+    const fetchTheme = async () => {
+        // Theme is now locked to dark
+        applyTheme();
     };
 
     const getSession = async () => {
@@ -53,11 +45,7 @@ function App() {
       
       const currentSession = supabaseSession || parsedLocal;
       setSession(currentSession);
-      if (currentSession?.user?.id) {
-          fetchTheme(currentSession.user.id);
-      } else {
-          applyTheme('dark'); // Default to dark for landing
-      }
+      fetchTheme();
     };
 
     getSession();
@@ -67,16 +55,12 @@ function App() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setSession(session);
-        fetchTheme(session.user.id);
+        fetchTheme();
       } else {
         const localSession = localStorage.getItem("vibe_session");
         const parsedLocal = localSession ? JSON.parse(localSession) : null;
         setSession(parsedLocal);
-        if (parsedLocal?.user?.id) {
-            fetchTheme(parsedLocal.user.id);
-        } else {
-            applyTheme('dark');
-        }
+        fetchTheme();
       }
     });
 
@@ -85,11 +69,11 @@ function App() {
       if (localSession) {
         const parsed = JSON.parse(localSession);
         setSession(parsed);
-        fetchTheme(parsed.user.id);
+        fetchTheme();
       } else {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
-            if (session) fetchTheme(session.user.id);
+            fetchTheme();
         });
       }
     };
