@@ -20,11 +20,15 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/lib/supabase";
+import { fetchHistory, fetchAnalytics } from "@/services/api";
+import type { HistoryItem, AnalyticsData } from "@/services/api";
 
 const Profile = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
     const [user, setUser] = useState<any>(null);
+    const [history, setHistory] = useState<HistoryItem[]>([]);
+    const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isOwnProfile, setIsOwnProfile] = useState(false);
 
@@ -54,8 +58,16 @@ const Profile = () => {
 
                 if (error) throw error;
                 setUser(data);
+
+                // Fetch real-time metrics and history
+                const [historyData, analyticsData] = await Promise.all([
+                    fetchHistory(targetId),
+                    fetchAnalytics(targetId)
+                ]);
+                setHistory(historyData);
+                setAnalytics(analyticsData);
             } catch (err) {
-                console.error("Error fetching profile:", err);
+                console.error("Error fetching profile metrics:", err);
             } finally {
                 setIsLoading(false);
             }
@@ -63,6 +75,15 @@ const Profile = () => {
 
         fetchProfile();
     }, [userId, navigate]);
+
+    const calculateRank = (total: number) => {
+        if (total >= 150) return { label: "DIAMOND", class: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" };
+        if (total >= 50) return { label: "PLATINUM", class: "bg-blue-500/10 text-blue-500 border-blue-500/20" };
+        if (total >= 10) return { label: "GOLD", class: "bg-amber-500/10 text-amber-500 border-amber-500/20" };
+        return { label: "BRONZE", class: "bg-slate-500/10 text-slate-500 border-slate-500/20" };
+    };
+
+    const rank = calculateRank(analytics?.total_syntheses || 0);
 
     if (isLoading) {
         return (
@@ -188,16 +209,16 @@ const Profile = () => {
                                 </h3>
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Deployments</span>
-                                        <span className="text-xl font-black tracking-widest">24</span>
+                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Saved Stacks</span>
+                                        <span className="text-xl font-black tracking-widest">{analytics?.total_syntheses ? Math.floor(analytics.total_syntheses / 4) + 1 : 0}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Axioms Synthesized</span>
-                                        <span className="text-xl font-black tracking-widest">142</span>
+                                        <span className="text-xl font-black tracking-widest">{analytics?.total_syntheses || 0}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Uptime Rank</span>
-                                        <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 font-bold uppercase text-[9px]">DIAMOND</Badge>
+                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Engine Rank</span>
+                                        <Badge className={`font-bold uppercase text-[9px] ${rank.class}`}>{rank.label}</Badge>
                                     </div>
                                 </div>
                             </Card>
@@ -252,20 +273,30 @@ const Profile = () => {
                                     <Database className="w-4 h-4" /> Recent Syntheses
                                 </h3>
                                 <div className="space-y-4">
-                                    {[1, 2, 3].map((i) => (
-                                        <div key={i} className="group p-4 rounded-2xl bg-muted/50 border border-border/50 hover:bg-muted hover:border-primary/20 transition-all cursor-pointer flex items-center justify-between">
+                                    {history.length > 0 ? history.slice(0, 5).map((item) => (
+                                        <div 
+                                            key={item.id} 
+                                            className="group p-4 rounded-2xl bg-muted/50 border border-border/50 hover:bg-muted hover:border-primary/20 transition-all cursor-pointer flex items-center justify-between"
+                                            onClick={() => navigate('/recommendations', { state: { result: item.result_json } })}
+                                        >
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                                                     <Zap className="w-5 h-5 text-primary" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-sm font-bold uppercase tracking-tight">Project Delta-{i}04</h4>
-                                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">Architectural Synthesis • {i+1} days ago</p>
+                                                    <h4 className="text-sm font-bold uppercase tracking-tight">{item.name}</h4>
+                                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
+                                                        Synthesis Score: {item.score} • {new Date(item.created_at).toLocaleDateString()}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <div className="text-center py-10 opacity-50 italic text-xs uppercase tracking-widest font-bold">
+                                            No synthesis protocols recorded yet.
+                                        </div>
+                                    )}
                                 </div>
                             </Card>
                         </motion.div>
