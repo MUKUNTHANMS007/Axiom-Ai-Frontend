@@ -18,8 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BarChart, Code, Eye, EyeOff, User } from "lucide-react";
-import Link from "next/link";
-import { JSX, SVGProps, useState } from "react";
+import { Link } from "react-router-dom";
+import { type JSX, type SVGProps, useState } from "react";
 
 const Logo = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
   <svg
@@ -137,11 +137,11 @@ export default function SignupForm() {
               <Checkbox id="terms" />
               <label htmlFor="terms" className="text-sm text-muted-foreground">
                 I agree to the{" "}
-                <Link href="#" className="text-primary hover:underline">
+                <Link to="#" className="text-primary hover:underline">
                   Terms
                 </Link>{" "}
                 and{" "}
-                <Link href="#" className="text-primary hover:underline">
+                <Link to="#" className="text-primary hover:underline">
                   Conditions
                 </Link>
               </label>
@@ -154,7 +154,7 @@ export default function SignupForm() {
           <CardFooter className="flex justify-center border-t !py-4">
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="#" className="text-primary hover:underline">
+              <Link to="#" className="text-primary hover:underline">
                 Sign in
               </Link>
             </p>

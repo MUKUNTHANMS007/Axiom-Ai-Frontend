@@ -50,58 +50,62 @@ const CheckboxRoot = React.forwardRef<
           className={cn(checkboxVariants({ size }), className)}
           {...props}
         >
-          <CheckboxPrimitive.Indicator render={<div className="flex items-center justify-center text-current" />}><AnimatePresence mode="wait">
-                                  {props.checked === "indeterminate" ? (
-                                    <motion.svg
-                                      key="indeterminate"
-                                      width={iconSize}
-                                      height={iconSize}
-                                      viewBox="0 0 14 14"
-                                      fill="none"
-                                      initial={{ opacity: 0 }}
-                                      animate={{ opacity: 1 }}
-                                      exit={{ opacity: 0 }}
-                                      transition={{ duration: 0.1 }}
-                                    >
-                                      <motion.path
-                                        d={minusPath}
-                                        stroke="currentColor"
-                                        strokeWidth={2}
-                                        strokeLinecap="round"
-                                        initial={{ pathLength: 0 }}
-                                        animate={{ pathLength: 1 }}
-                                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                                      />
-                                    </motion.svg>
-                                  ) : (
-                                    <motion.svg
-                                      key="check"
-                                      width={iconSize}
-                                      height={iconSize}
-                                      viewBox="0 0 14 14"
-                                      fill="none"
-                                      initial={{ opacity: 0 }}
-                                      animate={{ opacity: 1 }}
-                                      exit={{ opacity: 0 }}
-                                      transition={{ duration: 0.1 }}
-                                    >
-                                      <motion.path
-                                        d={checkPath}
-                                        stroke="currentColor"
-                                        strokeWidth={2}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        initial={{ pathLength: 0 }}
-                                        animate={{ pathLength: 1 }}
-                                        transition={{
-                                          duration: 0.3,
-                                          ease: "easeInOut",
-                                          delay: 0.1,
-                                        }}
-                                      />
-                                    </motion.svg>
-                                  )}
-                                </AnimatePresence></CheckboxPrimitive.Indicator>
+        <CheckboxPrimitive.Indicator asChild>
+          <div className="flex items-center justify-center text-current">
+            <AnimatePresence mode="wait">
+              {props.checked === "indeterminate" ? (
+                <motion.svg
+                  key="indeterminate"
+                  width={iconSize}
+                  height={iconSize}
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  <motion.path
+                    d={minusPath}
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  />
+                </motion.svg>
+              ) : (
+                <motion.svg
+                  key="check"
+                  width={iconSize}
+                  height={iconSize}
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  <motion.path
+                    d={checkPath}
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                      delay: 0.1,
+                    }}
+                  />
+                </motion.svg>
+              )}
+            </AnimatePresence>
+          </div>
+        </CheckboxPrimitive.Indicator>
         </CheckboxPrimitive.Root>
 
         {(label || description) && (
