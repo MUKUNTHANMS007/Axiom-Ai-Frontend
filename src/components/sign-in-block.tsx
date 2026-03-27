@@ -132,15 +132,31 @@ const SignInBlock = ({ initialMode = "signin", inviteToken }: SignInBlockProps) 
             window.dispatchEvent(new Event("storage"));
         }
       } else {
+        // 1. Check if username protocol already exists
+        const { data: existingUser } = await supabase
+          .from('User')
+          .select('User Name')
+          .eq('User Name', formData.username)
+          .single();
+
+        if (existingUser) {
+            throw new Error("This username protocol is already registered.");
+        }
+
+        // 2. Clear to initialize
         const { error } = await supabase
           .from('User')
           .insert({
-            'User Id': Math.floor(Math.random() * 1000000), // Generate random numeric ID
-            'User Name': `${formData.firstName} ${formData.lastName}`,
+            'User Id': Math.floor(Math.random() * 1000000), // Random numeric ID
+            'User Name': formData.username,
+            'Full Name': `${formData.firstName} ${formData.lastName}`, // Store full name separately if needed
             'Password': formData.password,
           });
         
-        if (error) throw error;
+        if (error) {
+            if (error.code === '23505') throw new Error("ID Collision or Name taken. Please try again.");
+            throw error;
+        }
         
         setMode("signin");
         setErrors({ general: "Account created successfully. Please authenticate." });
