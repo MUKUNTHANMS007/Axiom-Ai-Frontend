@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { cn } from '@/lib/utils'
@@ -112,31 +112,7 @@ export function HeroSection() {
                         </AnimatedGroup>
                     </div>
                 </section>
-                <section className="bg-background pb-16 pt-16 md:pb-32">
-                    <div className="group relative m-auto max-w-5xl px-6">
-                        <div className="absolute inset-0 z-10 flex scale-95 items-center justify-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
-                            <Link
-                                to="/"
-                                className="block text-sm duration-150 hover:opacity-75">
-                                <span> Meet Our Customers</span>
-
-                                <ChevronRight className="ml-1 inline-block size-3" />
-                            </Link>
-                        </div>
-                        <div className="mx-auto mt-12 grid max-w-2xl grid-cols-4 gap-x-12 gap-y-8 transition-all duration-500 group-hover:opacity-50 sm:gap-x-16 sm:gap-y-14">
-                            {[
-                                "Nvidia", "Column", "GitHub", "Nike", 
-                                "Lemon", "Laravel", "Lilly", "OpenAI"
-                            ].map((brand) => (
-                                <div key={brand} className="flex items-center justify-center">
-                                    <span className="text-xl font-bold text-slate-500/50 hover:text-white transition-colors cursor-default whitespace-nowrap">
-                                        {brand}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
+                {/* Logo wall removed per user request */}
             </main>
         </>
     )
