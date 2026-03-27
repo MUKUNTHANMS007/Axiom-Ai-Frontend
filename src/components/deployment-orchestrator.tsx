@@ -22,12 +22,12 @@ export const DeploymentOrchestrator: React.FC<DeploymentOrchestratorProps> = ({ 
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const LOG_SEQUENCE = [
-    { message: "Establishing Neural Link to Aether Core...", type: 'system', delay: 500 },
-    { message: "Authentication via Supabase Identity successful.", type: 'success', delay: 1000 },
+    { message: "Establishing Neural Link to Axiom Core...", type: 'system', delay: 500 },
+    { message: "Authentication via Global Identity successful.", type: 'success', delay: 1000 },
     { message: "Fetching architectural blueprint for comparison...", type: 'info', delay: 1500 },
     { message: "Blueprint verified. Identifying target infrastructure...", type: 'info', delay: 2000 },
-    { message: "Vercel / Next.js Bridge: Provisioning Edge Nodes...", type: 'system', delay: 2500 },
-    { message: "Supabase DB: Initializing PostgreSQL 16 standard...", type: 'system', delay: 3000 },
+    { message: "Edge Infrastructure Engine: Provisioning Global Nodes...", type: 'system', delay: 2500 },
+    { message: "Synthesis DB: Initializing PostgreSQL standard instance...", type: 'system', delay: 3000 },
     { message: "Tailwind CSS: Injecting JIT styles into theme layers...", type: 'info', delay: 3500 },
     { message: "Deployment started: Running 'npm run build'...", type: 'info', delay: 4500 },
     { message: "Bundle optimization complete. Size: 142KB (Gzip).", type: 'success', delay: 5500 },

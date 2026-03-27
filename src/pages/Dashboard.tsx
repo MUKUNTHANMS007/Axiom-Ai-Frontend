@@ -48,7 +48,9 @@ const Dashboard = () => {
             { name: "FastAPI", icon: "⚡", category: "Backend", reason: "High performance API", match: 92, docs_url: "#", learning_curve: "Easy" }
           ],
           deploy_platforms: [
-            { name: "Vercel", icon: "▲", type: "PaaS", purpose: "Frontend hosting", pricing: "Freemium", monthly_estimate: "$0-20", budget_fit: "Excellent", scalability: "High", free_tier: true, best_for: "Quick deployment and high speed" }
+            { name: "Vercel", icon: "▲", type: "PaaS", purpose: "Frontend hosting", pricing: "Freemium", monthly_estimate: "$0-20", budget_fit: "Excellent", scalability: "High", free_tier: true, best_for: "Quick deployment and high speed" },
+            { name: "Netlify", icon: "◈", type: "PaaS", purpose: "Edge delivery", pricing: "Free+", monthly_estimate: "$0-19", budget_fit: "Great", scalability: "Mid", free_tier: true, best_for: "Ease of use and global CDN" },
+            { name: "Railway", icon: "🛤️", type: "PaaS", purpose: "Full-stack hosting", pricing: "Usage-based", monthly_estimate: "$5+", budget_fit: "Fair", scalability: "High", free_tier: false, best_for: "Backends and Databases" }
           ],
           budget_breakdown: { minimum: "$0", recommended: "$45/mo", at_scale: "$200/mo", note: "Starting with free tiers for MVP" },
           architecture_patterns: [

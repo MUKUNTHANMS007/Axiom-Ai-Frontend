@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import PasswordField from "./password-field";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, User, ArrowRight } from "lucide-react";
+import { User, ArrowRight } from "lucide-react";
 
 interface SignInFormData {
   username: string;
@@ -191,8 +191,8 @@ const SignInBlock = ({ initialMode = "signin", inviteToken }: SignInBlockProps) 
                 
                 <CardHeader className="space-y-1 pb-6 px-8">
                     <div className="flex justify-center mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                            <Lock className="w-6 h-6 text-primary" />
+                        <div className="w-16 h-16 rounded-2xl bg-[#050505] flex items-center justify-center border border-white/10 overflow-hidden shadow-2xl group shadow-primary/20">
+                            <img src="/axiom-logo.png" alt="Axiom logo" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         </div>
                     </div>
                     <CardTitle className="text-4xl font-headline font-black text-center text-white tracking-tighter mb-4 uppercase">

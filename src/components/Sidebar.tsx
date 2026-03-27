@@ -18,9 +18,14 @@ const Sidebar = ({ onDeploy }: { onDeploy?: () => void }) => {
 
   return (
     <aside className="h-screen w-64 fixed left-0 top-0 border-r border-border bg-background flex flex-col p-4 gap-2 z-50 transition-colors duration-500">
-      <div className="mb-8 px-2">
-        <h2 className="font-headline font-bold text-lg tracking-tight text-foreground">Project Alpha</h2>
-        <p className="text-xs text-muted-foreground font-label">VPC Infrastructure</p>
+      <div className="mb-8 px-2 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg overflow-hidden bg-[#0a0a0b] border border-white/5 shadow-lg shadow-primary/10">
+          <img src="/axiom-logo.png" alt="Axiom AI" className="w-full h-full object-cover" />
+        </div>
+        <div>
+          <h2 className="font-headline font-bold text-lg tracking-tight text-white uppercase leading-none">Axiom <span className="text-primary">AI</span></h2>
+          <p className="text-[10px] text-slate-500 font-label uppercase tracking-widest mt-1">Control Panel</p>
+        </div>
       </div>
       <nav className="flex flex-col gap-1">
         {navLinks.map((link) => (

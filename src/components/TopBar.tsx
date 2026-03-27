@@ -50,8 +50,8 @@ const TopBar = () => {
   return (
     <header className="flex justify-between items-center px-8 h-16 w-full sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border shadow-sm transition-colors duration-500">
       <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/')}>
-        <div className="w-10 h-10 bg-gradient-to-br from-primary to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
-          <span className="material-symbols-outlined text-white text-2xl font-bold" data-icon="token">token</span>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500 bg-[#050505] border border-white/10">
+          <img src="/axiom-logo.png" alt="Axiom AI Logo" className="w-full h-full object-cover" />
         </div>
         <div className="flex flex-col">
           <span className="text-xl font-headline font-black tracking-tighter text-white leading-none">
