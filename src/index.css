@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 body {
-    @apply bg-surface text-on-surface font-body selection:bg-primary/30;
+    @apply bg-surface text-on-surface font-body selection:bg-primary/30 transition-colors duration-500;
 }
 
 .glass-panel {
@@ -20,6 +20,31 @@ body {
     width: 2px;
 }
 
+.glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+}
+
+.shimmer-text {
+    background: linear-gradient(90deg, #fff 0%, #a5b4fc 50%, #fff 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+    to { background-position: 200% center; }
+}
+
+.animate-glow {
+    animation: glow 4s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% { opacity: 0.3; filter: blur(40px); }
+    50% { opacity: 0.6; filter: blur(60px); }
+}
+
 .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
@@ -27,7 +52,35 @@ body {
 @layer base {
   .theme {
         --font-heading: var(--font-sans);
-        --font-sans: 'Geist Variable', sans-serif;
+        --font-sans: var(--font-geist-sans);
+        --font-mono: var(--font-geist-mono);
+        --color-success: var(--success);
+        --color-success-foreground: var(--success-foreground);
+        --color-warning: var(--warning);
+        --color-warning-foreground: var(--warning-foreground);
+        --hu-font-geist: var(----hu-font-geist);
+        --hu-font-jetbrains: var(----hu-font-jetbrains);
+        --radius: var(----radius);
+        --card-radius: var(----card-radius);
+        --color-hu-background: var(----hu-background);
+        --color-hu-foreground: var(----hu-foreground);
+        --color-hu-card: var(----hu-card);
+        --color-hu-card-foreground: var(----hu-card-foreground);
+        --color-hu-primary: var(----hu-primary);
+        --color-hu-primary-foreground: var(----hu-primary-foreground);
+        --color-hu-secondary: var(----hu-secondary);
+        --color-hu-secondary-foreground: var(----hu-secondary-foreground);
+        --color-hu-muted: var(----hu-muted);
+        --color-hu-muted-foreground: var(----hu-muted-foreground);
+        --color-hu-accent: var(----hu-accent);
+        --color-hu-accent-foreground: var(----hu-accent-foreground);
+        --color-hu-destructive: var(----hu-destructive);
+        --color-hu-destructive-foreground: var(----hu-destructive-foreground);
+        --color-hu-border: var(----hu-border);
+        --color-hu-input: var(----hu-input);
+        --color-hu-ring: var(----hu-ring);
+        --color-color-fd-background: var(----color-fd-background);
+        --color-color-fd-card: var(----color-fd-card);
     }
   :root {
         --background: oklch(1 0 0);
@@ -53,7 +106,7 @@ body {
         --chart-3: oklch(0.439 0 0);
         --chart-4: oklch(0.371 0 0);
         --chart-5: oklch(0.269 0 0);
-        --radius: 0.625rem;
+        --radius: 8px;
         --sidebar: oklch(0.985 0 0);
         --sidebar-foreground: oklch(0.145 0 0);
         --sidebar-primary: oklch(0.205 0 0);
@@ -62,6 +115,32 @@ body {
         --sidebar-accent-foreground: oklch(0.205 0 0);
         --sidebar-border: oklch(0.922 0 0);
         --sidebar-ring: oklch(0.708 0 0);
+        --success: oklch(0.70 0.15 145);
+        --success-foreground: oklch(0.98 0 0);
+        --warning: oklch(0.75 0.12 85);
+        --warning-foreground: oklch(0.15 0 0);
+        --hu-font-geist: var(--font-geist);
+        --hu-font-jetbrains: var(--font-jetbrains-mono);
+        --card-radius: 10px;
+        --hu-background: 0, 0%, 100%;
+        --hu-foreground: 0, 0%, 14%;
+        --hu-card: 0, 0%, 99%;
+        --hu-card-foreground: 0, 0%, 14%;
+        --hu-primary: 235, 100%, 60%;
+        --hu-primary-foreground: 0, 0%, 98%;
+        --hu-secondary: 0, 0%, 97%;
+        --hu-secondary-foreground: 0, 0%, 20%;
+        --hu-muted: 0, 0%, 97%;
+        --hu-muted-foreground: 0, 0%, 56%;
+        --hu-accent: 0, 0%, 96%;
+        --hu-accent-foreground: 0, 0%, 20%;
+        --hu-destructive: 9, 96%, 47%;
+        --hu-destructive-foreground: 0, 0%, 98%;
+        --hu-border: 0, 0%, 92%;
+        --hu-input: 0, 0%, 100%;
+        --hu-ring: 0, 0%, 71%;
+        --color-fd-background: hsl(var(--hu-background));
+        --color-fd-card: hsl(var(--hu-background));
     }
   .dark {
         --background: oklch(0.145 0 0);
@@ -95,9 +174,32 @@ body {
         --sidebar-accent-foreground: oklch(0.985 0 0);
         --sidebar-border: oklch(1 0 0 / 10%);
         --sidebar-ring: oklch(0.556 0 0);
+        --success: oklch(0.65 0.18 150);
+        --success-foreground: oklch(0.98 0 0);
+        --warning: oklch(0.80 0.15 90);
+        --warning-foreground: oklch(0.15 0 0);
+        --hu-background: 0, 0%, 7%;
+        --hu-foreground: 0, 0%, 100%;
+        --hu-card: 0, 0%, 9%;
+        --hu-card-foreground: 0, 0%, 100%;
+        --hu-primary: 235, 100%, 60%;
+        --hu-primary-foreground: 0, 0%, 98%;
+        --hu-secondary: 0, 0%, 15%;
+        --hu-secondary-foreground: 0, 0%, 100%;
+        --hu-muted: 0, 0%, 15%;
+        --hu-muted-foreground: 0, 0%, 71%;
+        --hu-accent: 0, 0%, 15%;
+        --hu-accent-foreground: 0, 0%, 100%;
+        --hu-destructive: 0, 84%, 50%;
+        --hu-destructive-foreground: 0, 0%, 98%;
+        --hu-border: 0, 0%, 100%, 10%;
+        --hu-input: 0, 0%, 100%, 5%;
+        --hu-ring: 0, 0%, 56%;
+        --color-fd-background: hsl(var(--hu-background));
+        --color-fd-card: hsl(var(--hu-background));
     }
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
     }
   body {
     @apply bg-background text-foreground;
@@ -105,4 +207,15 @@ body {
   html {
     @apply font-sans;
     }
+}
+
+@layer utilities {
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
 }

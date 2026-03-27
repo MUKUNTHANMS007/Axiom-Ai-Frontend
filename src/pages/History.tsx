@@ -1,9 +1,29 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Timeline } from '@/components/modern-timeline';
+import { fetchHistory, type HistoryItem } from '../services/api';
+
 const History = () => {
-  const explorations = [
-    { id: 'EXP-882-01', name: 'Ethereal Edge Nodes', stack: ['Next.js', 'Redis'], date: 'Oct 24, 2023', score: 98, color: 'text-primary' },
-    { id: 'EXP-901-44', name: 'Monolith Migration Beta', stack: ['Python', 'AWS'], date: 'Oct 21, 2023', score: 82, color: 'text-tertiary' },
-    { id: 'EXP-742-12', name: 'Serverless GraphQL Layer', stack: ['Apollo', 'GCP'], date: 'Oct 14, 2023', score: 74, color: 'text-on-surface-variant' },
-  ];
+  const [explorations, setExplorations] = useState<HistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    async function getHistory() {
+      try {
+        const localSession = localStorage.getItem("vibe_session");
+        const user_id = localSession ? JSON.parse(localSession).user?.name : null;
+        
+        const data = await fetchHistory(user_id);
+        setExplorations(data);
+      } catch (err) {
+        console.error('Error fetching history:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    getHistory();
+  }, []);
 
   return (
     <section className="p-12 max-w-7xl mx-auto">
@@ -26,41 +46,30 @@ const History = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          {explorations.map((item) => (
-            <div key={item.id} className="glass-panel rounded-xl p-6 flex items-center justify-between group hover:bg-surface-container-high transition-all duration-300">
-              <div className="flex items-center gap-6 w-1/3">
-                <div className={`h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center`}>
-                  <span className={`material-symbols-outlined ${item.color.replace('text-', 'text-opacity-100 text-')}`} data-icon="rocket_launch">rocket_launch</span>
-                </div>
-                <div>
-                  <h3 className="font-headline font-bold text-white tracking-tight">{item.name}</h3>
-                  <p className="text-xs text-slate-500 font-body">ID: {item.id}</p>
-                </div>
-              </div>
-              <div className="flex flex-col gap-1 w-1/6">
-                <span className="text-xs text-slate-500 font-label uppercase tracking-widest">Core Stack</span>
-                <div className="flex gap-1">
-                  {item.stack.map(s => (
-                    <span key={s} className="bg-surface-container-highest px-2 py-0.5 rounded text-[10px] text-primary-fixed border border-primary/10">{s}</span>
-                  ))}
-                </div>
-              </div>
-              <div className="flex flex-col gap-1 w-1/6">
-                <span className="text-xs text-slate-500 font-label uppercase tracking-widest">Date Analyzed</span>
-                <span className="text-sm font-body text-on-surface">{item.date}</span>
-              </div>
-              <div className="flex flex-col gap-1 w-1/12 text-center">
-                <span className="text-xs text-slate-500 font-label uppercase tracking-widest">Vibe Score</span>
-                <span className={`text-lg font-headline font-extrabold ${item.color}`}>{item.score}</span>
-              </div>
-              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg">
-                  <span className="material-symbols-outlined" data-icon="visibility">visibility</span>
-                </button>
-              </div>
+        <div className="mt-8">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+               <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+               <p className="text-on-surface-variant">Loading your project history...</p>
             </div>
-          ))}
+          ) : explorations.length > 0 ? (
+            <Timeline items={
+              explorations.map(item => ({
+                title: item.name,
+                description: item.result_json?.project_summary || "Architectural synthesis complete.",
+                date: new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
+                status: "completed" as const,
+                category: `Precision: ${item.score}%`,
+                tech_slugs: item.stack,
+                onClick: () => navigate('/recommendations', { state: { result: item.result_json } })
+              }))
+            } />
+          ) : (
+            <div className="text-center py-20 bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/30">
+              <span className="material-symbols-outlined text-4xl text-slate-500 mb-4" data-icon="history">history</span>
+              <p className="text-on-surface-variant">No explorations found yet. Start designing on the dashboard!</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

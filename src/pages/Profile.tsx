@@ -1,0 +1,279 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { 
+  User as UserIcon, 
+  MapPin, 
+  Globe, 
+  Link as LinkIcon, 
+  Mail, 
+  ExternalLink, 
+  Edit3,
+  Code2,
+  Cpu,
+  Zap,
+  ChevronRight,
+  Database
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/lib/supabase";
+
+const Profile = () => {
+    const { userId } = useParams();
+    const navigate = useNavigate();
+    const [user, setUser] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isOwnProfile, setIsOwnProfile] = useState(false);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                let targetId = userId;
+                const sessionStr = localStorage.getItem("vibe_session");
+                const session = sessionStr ? JSON.parse(sessionStr) : null;
+
+                if (!targetId && session) {
+                    targetId = session.user.id;
+                }
+
+                if (!targetId) {
+                    navigate("/login");
+                    return;
+                }
+
+                setIsOwnProfile(session?.user?.id.toString() === targetId.toString());
+
+                const { data, error } = await supabase
+                    .from('User')
+                    .select('*')
+                    .eq('User Id', targetId)
+                    .single();
+
+                if (error) throw error;
+                setUser(data);
+            } catch (err) {
+                console.error("Error fetching profile:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, [userId, navigate]);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <div className="animate-pulse flex flex-col items-center gap-4">
+                    <div className="w-24 h-24 bg-muted rounded-full"></div>
+                    <div className="h-4 w-48 bg-muted rounded"></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold mb-2">Architect Not Found</h2>
+                    <p className="text-muted-foreground mb-4">The signal from this coordinate is lost or corrupted.</p>
+                    <Button asChild><Link to="/dashboard">Return to Dashboard</Link></Button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-background text-foreground pb-20 transition-colors duration-500">
+            {/* dynamic background glow */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px]"></div>
+            </div>
+
+            <main className="relative z-10 max-w-5xl mx-auto px-6 pt-12">
+                {/* Hero section */}
+                <motion.section 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative overflow-hidden glass-card rounded-[2.5rem] p-8 md:p-12 mb-8 border-border/10 shadow-2xl"
+                >
+                    <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+                        <div className="relative group">
+                            <motion.div 
+                                whileHover={{ scale: 1.05 }}
+                                className="w-40 h-40 rounded-[2rem] bg-gradient-to-br from-primary/30 to-indigo-600/30 flex items-center justify-center border-2 border-primary/20 shadow-2xl overflow-hidden backdrop-blur-3xl relative"
+                            >
+                                {user['Photo URL'] ? (
+                                    <img 
+                                        src={user['Photo URL']} 
+                                        alt={user['User Name']} 
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <UserIcon className="w-20 h-20 text-primary" />
+                                )}
+                            </motion.div>
+                            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-emerald-500 border-4 border-background flex items-center justify-center shadow-lg">
+                                <Zap className="w-4 h-4 text-white" />
+                            </div>
+                        </div>
+
+                        <div className="flex-1 text-center md:text-left pt-2">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                                <div>
+                                    <h1 className="text-4xl md:text-5xl font-headline font-black tracking-tighter uppercase mb-2">
+                                        {user['User Name']}
+                                    </h1>
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold tracking-widest uppercase text-[10px] px-3">
+                                            {user['Role'] || "Aether Architect"}
+                                        </Badge>
+                                        {user['Location'] && (
+                                            <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium">
+                                                <MapPin className="w-3 h-3" />
+                                                {user['Location']}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                {isOwnProfile && (
+                                    <Button asChild variant="outline" className="rounded-xl border-primary/20 text-primary hover:bg-primary/10 transition-all">
+                                        <Link to="/settings" className="flex items-center gap-2">
+                                            <Edit3 className="w-4 h-4" />
+                                            Edit Protocol
+                                        </Link>
+                                    </Button>
+                                )}
+                            </div>
+
+                            <Separator className="my-6 opacity-30" />
+
+                            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                                {user['GitHub URL'] && (
+                                    <a href={user['GitHub URL']} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 transition-all border border-border/50 text-xs font-bold uppercase tracking-widest">
+                                        <Globe className="w-4 h-4" /> GitHub
+                                    </a>
+                                )}
+                                {user['LinkedIn URL'] && (
+                                    <a href={user['LinkedIn URL']} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 transition-all border border-border/50 text-xs font-bold uppercase tracking-widest">
+                                        <LinkIcon className="w-4 h-4" /> LinkedIn
+                                    </a>
+                                )}
+                                {user['Portfolio URL'] && (
+                                    <a href={user['Portfolio URL']} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20">
+                                        <Globe className="w-4 h-4" /> Portfolio <ExternalLink className="w-3 h-3 ml-1" />
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </motion.section>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Sidebar Stats */}
+                    <div className="space-y-8">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                        >
+                            <Card className="glass-card p-6 border-border/10 rounded-[2rem]">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-6 flex items-center gap-2">
+                                    <Cpu className="w-4 h-4 text-primary" /> System Metrics
+                                </h3>
+                                <div className="space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Deployments</span>
+                                        <span className="text-xl font-black tracking-widest">24</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Axioms Synthesized</span>
+                                        <span className="text-xl font-black tracking-widest">142</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Uptime Rank</span>
+                                        <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 font-bold uppercase text-[9px]">DIAMOND</Badge>
+                                    </div>
+                                </div>
+                            </Card>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            <Card className="glass-card p-6 border-border/10 rounded-[2rem]">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-6">Access Layer</h3>
+                                <button className="w-full h-12 rounded-xl bg-muted border border-border flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                                    <Mail className="w-4 h-4" /> Open Comms Channel
+                                </button>
+                            </Card>
+                        </motion.div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="md:col-span-2 space-y-8">
+                        {/* Technical Radar (Skills) */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                        >
+                            <Card className="glass-card p-8 border-border/10 rounded-[2rem]">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-8 flex items-center gap-2">
+                                    <Code2 className="w-4 h-4" /> Technical DNA
+                                </h3>
+                                <div className="flex flex-wrap gap-3">
+                                    {user['Skills'] && user['Skills'].length > 0 ? user['Skills'].map((skill: string) => (
+                                        <Badge key={skill} className="px-4 py-2 bg-muted border border-border/50 text-foreground font-black uppercase tracking-widest text-[10px] hover:border-primary/50 transition-all duration-300">
+                                            {skill}
+                                        </Badge>
+                                    )) : (
+                                        <p className="text-xs text-muted-foreground italic">No technical protocols defined yet.</p>
+                                    )}
+                                </div>
+                            </Card>
+                        </motion.div>
+
+                        {/* Recent Synthesis (Activity/Projects placeholder) */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            <Card className="glass-card p-8 border-border/10 rounded-[2rem]">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-8 flex items-center gap-2">
+                                    <Database className="w-4 h-4" /> Recent Syntheses
+                                </h3>
+                                <div className="space-y-4">
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="group p-4 rounded-2xl bg-muted/50 border border-border/50 hover:bg-muted hover:border-primary/20 transition-all cursor-pointer flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                                    <Zap className="w-5 h-5 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-bold uppercase tracking-tight">Project Delta-{i}04</h4>
+                                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">Architectural Synthesis • {i+1} days ago</p>
+                                                </div>
+                                            </div>
+                                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                        </motion.div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+};
+
+export default Profile;

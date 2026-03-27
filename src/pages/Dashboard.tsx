@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { analyzeProject } from '../services/api';
-import type { ProjectInput } from '../services/api';
+import { PromptInputBox } from '@/components/ai-prompt-box';
+import { BeamsBackground } from '@/components/ui/beams-background';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -9,8 +10,22 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleAnalyze = async (isDemo: boolean = false) => {
-    if (!description.trim() && !isDemo) return;
+  // Get user ID from session
+  const getUserId = () => {
+    const localSession = localStorage.getItem("vibe_session");
+    if (localSession) {
+      const parsed = JSON.parse(localSession);
+      return parsed.user?.name;
+    }
+    return null;
+  };
+
+  const handleAnalyze = async (isDemo: boolean = false, inputDesc?: string) => {
+    const finalDesc = inputDesc || description;
+    if (!finalDesc.trim() && !isDemo) return;
+    
+    // Also save the typed text back to state just in case
+    if (inputDesc) setDescription(inputDesc);
     
     setLoading(true);
     setError(null);
@@ -44,8 +59,9 @@ const Dashboard = () => {
           mvp_roadmap: ["Step 1: Auth and simple real-time sync", "Step 2: Core editor logic", "Step 3: Scaling"]
         };
       } else {
-        result = await analyzeProject({ description });
+        result = await analyzeProject({ description: finalDesc }, getUserId());
       }
+
       navigate('/recommendations', { state: { result } });
     } catch (err: any) {
       setError(err.message || 'Something went wrong during analysis');
@@ -56,39 +72,36 @@ const Dashboard = () => {
 
   return (
     <div className="flex-grow flex items-center justify-center px-12 py-16 relative">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] bg-primary/20 blur-[120px] rounded-full"></div>
-        <div className="absolute -bottom-[20%] -left-[10%] w-[500px] h-[500px] bg-tertiary/10 blur-[100px] rounded-full"></div>
+      <BeamsBackground className="absolute inset-0 z-0 pointer-events-none opacity-100 mix-blend-screen" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
+        <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] bg-primary/10 blur-[120px] rounded-full"></div>
+        <div className="absolute -bottom-[20%] -left-[10%] w-[500px] h-[500px] bg-tertiary/5 blur-[100px] rounded-full"></div>
       </div>
       
-      <div className="max-w-6xl w-full grid grid-cols-12 gap-12 items-start relative z-10">
-        <div className="col-span-12 lg:col-span-8 flex flex-col gap-8">
-          <div className="space-y-2">
-            <h1 className="text-5xl font-headline font-extrabold tracking-tighter text-white">
+      <div className="max-w-4xl w-full flex flex-col gap-12 items-center relative z-10">
+        <div className="w-full flex flex-col gap-8 text-center items-center">
+          <div className="space-y-4">
+            <h1 className="text-6xl font-headline font-extrabold tracking-tighter text-white">
               Synthesize Your <span className="text-primary">Vision.</span>
             </h1>
-            <p className="text-on-surface-variant text-lg max-w-xl font-light">
+            <p className="text-on-surface-variant text-xl max-w-2xl font-light mx-auto">
               Describe the core essence and requirements of your project. Our engine will map the optimal architectural stack in seconds.
             </p>
           </div>
-          <div className="glass-panel rounded-xl p-8 shadow-2xl shadow-black/40 border border-outline-variant/20">
+          <div className="glass-panel w-full rounded-2xl p-10 shadow-2xl shadow-black/60 border border-outline-variant/20 bg-surface-container-low/40 backdrop-blur-md">
             <div className="relative">
-              <label className="block text-xs font-label font-bold uppercase tracking-widest text-primary mb-4" htmlFor="vibe-input">
+              <label className="block text-xs font-label font-bold uppercase tracking-widest text-primary mb-6" htmlFor="vibe-input">
                 Describe your project vibe...
               </label>
-              <textarea 
-                className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-6 text-on-surface font-body text-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-slate-600 resize-none disabled:opacity-50" 
-                id="vibe-input" 
-                placeholder="e.g. A high-concurrency fintech platform requiring sub-100ms latency for global transactions..." 
-                rows={10}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={loading}
-              ></textarea>
+              <PromptInputBox 
+                onSend={(msg) => handleAnalyze(false, msg)}
+                isLoading={loading}
+                placeholder="e.g. A high-concurrency fintech platform requiring sub-100ms latency for global transactions..."
+              />
               
               {error && <p className="mt-4 text-error text-sm font-medium">{error}</p>}
               
-              <div className="mt-8 flex justify-between items-center">
+              <div className="mt-8 flex justify-center items-center">
                 <div className="flex gap-4">
                   <span className="flex items-center gap-2 text-xs font-label text-slate-500">
                     <span className={`material-symbols-outlined text-sm ${loading ? 'animate-spin' : ''}`} data-icon="auto_awesome">
@@ -97,20 +110,10 @@ const Dashboard = () => {
                     {loading ? 'AI Engine is Analyzing...' : 'AI-Assisted Drafting Active'}
                   </span>
                 </div>
-                <button 
-                  onClick={() => handleAnalyze(false)}
-                  disabled={loading || !description.trim()}
-                  className="group relative px-8 py-4 bg-gradient-to-br from-primary to-primary-dim text-on-primary-fixed font-headline font-bold text-sm uppercase tracking-widest rounded-md overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_-5px_rgba(182,160,255,0.5)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="relative z-10 flex items-center gap-3">
-                    {loading ? 'Synthesizing...' : 'Analyze Vibe & Generate Stack'}
-                    {!loading && <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>}
-                  </span>
-                </button>
               </div>
             </div>
             
-            <div className="mt-6 pt-6 border-t border-outline-variant/10 flex items-center justify-center">
+            <div className="mt-8 pt-8 border-t border-outline-variant/10 flex items-center justify-center">
                <button 
                  onClick={() => handleAnalyze(true)}
                  disabled={loading}
@@ -119,24 +122,6 @@ const Dashboard = () => {
                  <span className="material-symbols-outlined text-sm" data-icon="rocket_launch">rocket_launch</span>
                  Don't have API keys? Try the <span className="underline font-bold">Interactive Demo Flow</span>
                </button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
-          {/* Side Panels - Simplified for Integration */}
-          <div className="p-6 rounded-xl bg-surface-container-high relative overflow-hidden border border-outline-variant/10">
-            <div className="absolute left-0 top-0 bottom-0 shimmer-accent"></div>
-            <h3 className="font-headline font-bold text-white mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary" data-icon="tips_and_updates">tips_and_updates</span>
-              Blueprint Suggestions
-            </h3>
-            <div className="space-y-4">
-              {["Scaling for 1M+ concurrent users globally...", "Requires WebSockets for live collaborative editing...", "Native connectivity with Stripe and Salesforce...", "Preference for AWS Serverless or GCP Anthos..."].map((s, i) => (
-                <div key={i} className="group p-4 bg-surface-container-lowest rounded-lg border border-transparent hover:border-primary/30 transition-all cursor-pointer" onClick={() => setDescription(prev => prev ? prev + " " + s : s)}>
-                  <p className="text-sm text-on-surface-variant font-light">"{s}"</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>

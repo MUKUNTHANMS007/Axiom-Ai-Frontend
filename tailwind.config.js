@@ -7,7 +7,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: "class",
+  darkMode: ["class", "class"],
   theme: {
     extend: {
       colors: {
@@ -61,7 +61,23 @@ export default {
         "error": "#ff6e84",
         "primary-dim": "#7e51ff",
         "surface-container-lowest": "#000000",
-        "secondary": "#d5e3fc"
+        "secondary": "#d5e3fc",
+        "border": "var(--border)",
+        "input": "var(--input)",
+        "ring": "var(--ring)",
+        "foreground": "var(--foreground)",
+        "background": "var(--background)",
+        "muted": "var(--muted)",
+        "muted-foreground": "var(--muted-foreground)",
+        "accent": "var(--accent)",
+        "accent-foreground": "var(--accent-foreground)",
+        "popover": "var(--popover)",
+        "popover-foreground": "var(--popover-foreground)",
+        "card": "var(--card)",
+        "card-foreground": "var(--card-foreground)",
+        "destructive": "var(--destructive)",
+        "destructive-foreground": "var(--destructive-foreground)",
+        "success": "var(--success)"
       },
       fontFamily: {
         "headline": ["Plus Jakarta Sans"],
