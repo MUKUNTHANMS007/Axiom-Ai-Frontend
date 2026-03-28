@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fetchPendingInvites, respondToInvite, type ProjectInvite } from '../services/api';
+import { fetchNotifications, respondToInvite, markNotificationRead, type Notification } from '../services/api';
 
 interface TopBarProps {
   onToggleSidebar?: () => void;
 }
 
 const TopBar = ({ onToggleSidebar }: TopBarProps) => {
-  const [invites, setInvites] = useState<ProjectInvite[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isResponding, setIsResponding] = useState<string | null>(null);
   
@@ -17,31 +17,38 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
 
   useEffect(() => {
     if (user?.name) {
-      loadInvites();
-      // Poll for invites every 30s
-      const interval = setInterval(loadInvites, 30000);
+      loadNotifications();
+      // Poll for notifications every 30s
+      const interval = setInterval(loadNotifications, 30000);
       return () => clearInterval(interval);
     }
   }, [user?.name]);
 
-  const loadInvites = async () => {
+  const loadNotifications = async () => {
     try {
       if (!user?.name) return;
-      const data = await fetchPendingInvites(user.name);
-      setInvites(data);
+      const data = await fetchNotifications(user.name);
+      setNotifications(data);
     } catch (err) {
-      console.error('Failed to load invites:', err);
+      console.error('Failed to load notifications:', err);
     }
   };
 
-  const handleInviteResponse = async (token: string, action: 'accept' | 'reject') => {
+  const handleInviteResponse = async (notificationId: string, token: string, action: 'accept' | 'reject') => {
     if (!user?.name) return;
     setIsResponding(token);
     try {
-      const result = await respondToInvite(token, user.name, action);
-      setInvites(invites.filter(i => i.token !== token));
+      await respondToInvite(token, user.name, action);
+      await markNotificationRead(notificationId);
+      
+      setNotifications(notifications.filter(n => n.id !== notificationId));
+      
       if (action === 'accept') {
-        navigate(`/project/${result.project_id}`);
+        const invite = notifications.find(n => n.id === notificationId);
+        const projectId = invite?.data?.project_id;
+        if (projectId) {
+           navigate(`/project/${projectId}`);
+        }
         setShowNotifications(false);
       }
     } catch (err) {
@@ -50,6 +57,8 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
       setIsResponding(null);
     }
   };
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 border-b border-white/5 bg-gradient-to-b from-[#131313] to-[#0e0e0e] shadow-[0_20px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl">
@@ -76,9 +85,9 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
             className={`p-2 transition-colors relative ${showNotifications ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
           >
             <span className="material-symbols-outlined" data-icon="notifications">notifications</span>
-            {invites.length > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-black text-[10px] font-black rounded-full flex items-center justify-center animate-pulse shadow-lg shadow-primary/20">
-                {invites.length}
+                {unreadCount}
               </span>
             )}
           </button>
@@ -93,47 +102,59 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
               >
                 <div className="p-4 bg-white/5 border-b border-white/5 flex items-center justify-between">
                   <h3 className="text-xs font-black uppercase tracking-widest text-white">Notifications</h3>
-                  {invites.length > 0 && (
-                    <span className="text-[10px] font-bold text-primary">{invites.length} Pending Invites</span>
+                  {unreadCount > 0 && (
+                    <span className="text-[10px] font-bold text-primary">{unreadCount} New Alerts</span>
                   )}
                 </div>
                 
                 <div className="max-h-96 overflow-y-auto">
-                  {invites.length === 0 ? (
+                  {notifications.length === 0 ? (
                     <div className="p-8 text-center">
                       <span className="material-symbols-outlined text-slate-700 text-3xl mb-2" data-icon="notifications_paused">notifications_paused</span>
-                      <p className="text-xs text-slate-500">Zero pending requests. Your inbox is clean.</p>
+                      <p className="text-xs text-slate-500">Zero pending alerts. Your inbox is clean.</p>
                     </div>
                   ) : (
-                    invites.map(invite => (
-                      <div key={invite.token} className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors">
+                    notifications.map(notification => (
+                      <div 
+                        key={notification.id} 
+                        className={`p-4 border-b border-white/5 transition-colors ${notification.is_read ? 'opacity-60' : 'bg-primary/5 hover:bg-white/5'}`}
+                      >
                         <div className="flex items-start gap-3 mb-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-[10px] font-black text-primary flex-shrink-0">
-                            {invite.invited_by.charAt(0).toUpperCase()}
+                          <div className={`w-8 h-8 rounded-full border flex items-center justify-center text-[10px] font-black flex-shrink-0 ${
+                            notification.type === 'invite' ? 'bg-primary/20 border-primary/40 text-primary' : 'bg-white/5 border-white/10 text-slate-400'
+                          }`}>
+                            <span className="material-symbols-outlined text-sm font-black" data-icon={notification.type === 'invite' ? 'mail' : 'info'}>
+                              {notification.type === 'invite' ? 'mail' : 'info'}
+                            </span>
                           </div>
-                          <div>
-                            <p className="text-xs text-white leading-relaxed">
-                              <span className="font-bold">{invite.invited_by}</span> invited you to <span className="text-primary font-bold">{invite.projects?.name}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-white leading-relaxed break-words">
+                              {notification.message}
                             </p>
-                            <span className="text-[9px] text-slate-600 font-mono mt-0.5 block italic">Initializing workstation...</span>
+                            <span className="text-[9px] text-slate-600 font-mono mt-0.5 block italic">
+                              {new Date(notification.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {notification.type.toUpperCase()}
+                            </span>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleInviteResponse(invite.token, 'reject')}
-                            disabled={isResponding === invite.token}
-                            className="flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white/5 transition-colors border border-white/5"
-                          >
-                            Decline
-                          </button>
-                          <button
-                            onClick={() => handleInviteResponse(invite.token, 'accept')}
-                            disabled={isResponding === invite.token}
-                            className="flex-1 py-1.5 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/80 transition-all shadow-lg shadow-primary/20"
-                          >
-                            {isResponding === invite.token ? 'Accepting...' : 'Accept'}
-                          </button>
-                        </div>
+                        
+                        {notification.type === 'invite' && !notification.is_read && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleInviteResponse(notification.id, notification.data?.token, 'reject')}
+                              disabled={isResponding === notification.data?.token}
+                              className="flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white/5 transition-colors border border-white/10"
+                            >
+                              Decline
+                            </button>
+                            <button
+                              onClick={() => handleInviteResponse(notification.id, notification.data?.token, 'accept')}
+                              disabled={isResponding === notification.data?.token}
+                              className="flex-1 py-1.5 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/80 transition-all shadow-lg shadow-primary/20"
+                            >
+                              {isResponding === notification.data?.token ? 'Accepting...' : 'Accept'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))
                   )}

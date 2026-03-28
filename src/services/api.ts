@@ -333,6 +333,29 @@ export const respondToInvite = async (token: string, user_id: string, action: 'a
   return res.json();
 };
 
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  message: string;
+  data: any;
+  is_read: boolean;
+  created_at: string;
+}
+
+export const fetchNotifications = async (user_id: string): Promise<Notification[]> => {
+  const res = await fetch(`${API_BASE_URL}/api/v1/notifications/${encodeURIComponent(user_id)}`);
+  if (!res.ok) return [];
+  return res.json();
+};
+
+export const markNotificationRead = async (id: string): Promise<void> => {
+  const res = await fetch(`${API_BASE_URL}/api/v1/notifications/${id}/read`, {
+    method: 'PATCH'
+  });
+  if (!res.ok) throw new Error('Failed to mark as read');
+};
+
 export const fetchPendingInvites = async (username: string): Promise<ProjectInvite[]> => {
   const res = await fetch(`${API_BASE_URL}/api/v1/invites/pending/${encodeURIComponent(username)}`);
   if (!res.ok) return [];
