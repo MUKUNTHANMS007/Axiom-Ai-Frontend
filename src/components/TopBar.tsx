@@ -58,6 +58,25 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
     }
   };
 
+  const handleNotificationClick = async (notification: Notification) => {
+    // Mark as read
+    if (!notification.is_read) {
+      try {
+        await markNotificationRead(notification.id);
+        setNotifications(notifications.map(n => n.id === notification.id ? { ...n, is_read: true } : n));
+      } catch (err) {
+        console.error('Failed to mark read:', err);
+      }
+    }
+
+    // Navigate to project
+    const projectId = notification.data?.project_id;
+    if (projectId) {
+      navigate(`/project/${projectId}`);
+      setShowNotifications(false);
+    }
+  };
+
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
@@ -117,21 +136,28 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
                     notifications.map(notification => (
                       <div 
                         key={notification.id} 
-                        className={`p-4 border-b border-white/5 transition-colors ${notification.is_read ? 'opacity-60' : 'bg-primary/5 hover:bg-white/5'}`}
+                        onClick={() => notification.type !== 'invite' && handleNotificationClick(notification)}
+                        className={`p-4 border-b border-white/5 transition-colors cursor-pointer ${notification.is_read ? 'opacity-60' : 'bg-primary/5 hover:bg-white/5'}`}
                       >
                         <div className="flex items-start gap-3 mb-3">
                           <div className={`w-8 h-8 rounded-full border flex items-center justify-center text-[10px] font-black flex-shrink-0 ${
                             notification.type === 'invite' ? 'bg-primary/20 border-primary/40 text-primary' : 
                             notification.type === 'invite_accepted' ? 'bg-green-500/20 border-green-500/40 text-green-500' :
+                            notification.type === 'task' ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-500' :
+                            notification.type === 'task_completed' ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-500' :
                             'bg-white/5 border-white/10 text-slate-400'
                           }`}>
                             <span className="material-symbols-outlined text-sm font-black" data-icon={
                               notification.type === 'invite' ? 'mail' : 
                               notification.type === 'invite_accepted' ? 'handshake' : 
+                              notification.type === 'task' ? 'checklist' :
+                              notification.type === 'task_completed' ? 'rule' :
                               'info'
                             }>
                               {notification.type === 'invite' ? 'mail' : 
                                notification.type === 'invite_accepted' ? 'handshake' : 
+                               notification.type === 'task' ? 'checklist' :
+                               notification.type === 'task_completed' ? 'rule' :
                                'info'}
                             </span>
                           </div>
