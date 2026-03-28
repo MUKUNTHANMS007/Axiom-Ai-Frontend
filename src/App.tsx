@@ -15,6 +15,7 @@ import InviteAccept from './pages/InviteAccept';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Docs from './pages/Docs';
+import Architecture from './pages/Architecture';
 import { supabase } from './lib/supabase';
 
 const ProtectedRoute = ({ session }: { session: any }) => {
@@ -98,6 +99,7 @@ function App() {
         <Route element={<ProtectedRoute session={session} />}>
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/architecture" element={<Architecture />} />
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/history" element={<History />} />
             <Route path="/team-stack" element={<TeamStack />} />

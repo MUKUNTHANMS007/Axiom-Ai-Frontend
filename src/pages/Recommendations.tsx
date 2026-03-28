@@ -14,7 +14,7 @@ const Recommendations = () => {
 
   // If no result is present, redirect to dashboard
   if (!result) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/architecture" replace />;
   }
 
   const handleSaveStack = async () => {

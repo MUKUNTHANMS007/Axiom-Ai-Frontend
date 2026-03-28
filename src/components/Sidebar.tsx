@@ -19,7 +19,7 @@ const Sidebar = ({ onDeploy, isOpen, onClose }: SidebarProps) => {
     { name: 'My Profile', path: '/me', icon: 'account_circle' },
     { name: 'My Projects', path: '/my-projects', icon: 'workspaces' },
     { name: 'My Tasks', path: '/my-tasks', icon: 'task_alt' },
-    { name: 'Architecture', path: '/recommendations', icon: 'architecture' },
+    { name: 'Architecture', path: '/architecture', icon: 'architecture' },
     { name: 'Team Stack', path: '/team-stack', icon: 'groups' },
     { name: 'Workflow', path: '/workflow', icon: 'timeline' },
     { name: 'History', path: '/history', icon: 'history' },
