@@ -147,7 +147,7 @@ const TeamStack = () => {
       } finally {
         setIsSearching(false);
       }
-    }, 400);
+    }, 100);
   };
 
   const getSessionUser = () => {
@@ -605,14 +605,12 @@ const TeamStack = () => {
                               </button>
                             </div>
                           </div>
-                          <div className="relative group/qr p-1 rounded-2xl bg-gradient-to-br from-primary/20 via-white/5 to-transparent border border-white/10 shadow-2xl flex flex-col items-center">
-                            <div className="p-4 bg-white rounded-xl shadow-inner relative z-10">
+                          <div className="relative group/qr p-2 rounded-2xl bg-white/5 border border-white/10 shadow-2xl flex flex-col items-center">
+                            <div className="p-4 bg-white rounded-xl shadow-inner relative z-10 overflow-hidden">
                               <img
                                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(inviteLink)}&color=000000&bgcolor=ffffff&margin=1`}
                                 alt="Invite QR Code"
-                                className="w-[180px] h-[180px] rounded-lg"
-                                onLoad={(e) => (e.currentTarget.style.opacity = '1')}
-                                style={{ opacity: 0, transition: 'opacity 0.5s ease-in' }}
+                                className="w-[180px] h-[180px] rounded-lg block"
                               />
                             </div>
                             <div className="py-4 text-center">

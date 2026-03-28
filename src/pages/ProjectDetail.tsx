@@ -51,7 +51,7 @@ const ProjectDetail = () => {
 
   const handleSearchUsers = async (q: string) => {
     setInviteQuery(q);
-    if (q.length < 2) {
+    if (q.length < 1) {
       setSearchResults([]);
       return;
     }
@@ -324,22 +324,20 @@ const ProjectDetail = () => {
                                 </div>
                               </div>
 
-                              <div className="flex flex-col items-center gap-6 py-4 px-8 rounded-3xl bg-gradient-to-br from-primary/10 via-white/5 to-transparent border border-white/5 relative group/qr shadow-2xl overflow-hidden min-h-[300px] justify-center text-center">
+                              <div className="flex flex-col items-center gap-6 py-6 px-8 rounded-3xl bg-white/5 border border-white/10 relative group/qr shadow-2xl overflow-hidden justify-center text-center">
                                 <div className="relative z-10 p-4 bg-white rounded-2xl shadow-inner group-hover/qr:scale-[1.02] transition-transform duration-500">
                                   <img 
                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`${window.location.origin}/invite/${inviteToken}`)}&color=000000&bgcolor=ffffff&margin=1`}
                                     alt="Project Invite QR"
-                                    className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg opacity-0 transition-opacity duration-700"
-                                    onLoad={(e) => (e.currentTarget.style.opacity = '1')}
+                                    className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg block"
                                   />
                                 </div>
                                 <div className="relative z-10 space-y-1">
                                   <p className="text-primary font-black uppercase text-[10px] tracking-[0.4em]">Project Access Terminal</p>
                                   <p className="text-slate-500 text-[9px] uppercase font-bold tracking-widest">Scanning initializes team synchronization</p>
                                 </div>
-                                {/* Decorative elements from TeamStack */}
+                                {/* Decorative elements */}
                                 <div className="absolute inset-0 bg-primary/5 blur-[80px] rounded-full -z-10 animate-pulse"></div>
-                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 blur-[60px] rounded-full -z-10 group-hover/qr:bg-primary/20 transition-colors"></div>
                               </div>
 
                               <button 
