@@ -14,7 +14,7 @@ const TeamStack = () => {
   const [taskInput, setTaskInput] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
   const [assignment, setAssignment] = useState<TaskAssignment | null>(null);
-  const [assignError, setAssignError] = useState<string | null>(null);
+  const [, setAssignError] = useState<string | null>(null);
 
   const [dynamicMembers, setDynamicMembers] = useState<any[]>([]);
   const [isOptimizing, setIsOptimizing] = useState(false);
@@ -49,11 +49,11 @@ const TeamStack = () => {
         
         if (projectData && projectData.project_members) {
           const members = projectData.project_members.map((m: any) => ({
-            name: m.user_id, // For now user_id is the username in our system
-            role: m.role === 'leader' ? 'Lead Architect' : 'Architect',
+            name: m.user_id,
+            role: m.role === 'leader' ? 'Lead Architect' : 'Strategic Engineering Architect',
             skills: m.role === 'leader' 
-              ? ['System Architecture', 'Strategy', 'Infrastructure']
-              : ['Full-stack', 'API Design', 'PostgreSQL'],
+              ? ['Next.js', 'Vercel Deployment', 'Architecture', 'TypeScript', 'Project Strategy']
+              : ['Supabase', 'SQL Database', 'Backend API', 'Tailwind CSS', 'UI Implementation'],
             color: m.role === 'leader' ? 'bg-primary' : 'bg-indigo-500'
           }));
           setDynamicMembers(members);
