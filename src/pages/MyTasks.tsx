@@ -171,22 +171,40 @@ const MyTasks = () => {
                       </div>
                     </div>
 
-                    {/* AI Context Card (if available) */}
-                    {task.ai_confidence && (
-                      <div className="flex-shrink-0 md:w-56 bg-primary/5 rounded-2xl p-4 border border-primary/10 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-2 opacity-10">
-                          <span className="material-symbols-outlined text-3xl text-primary" data-icon="smart_toy">smart_toy</span>
+                    {/* Task Actions */}
+                    <div className="flex-shrink-0 lg:w-56 space-y-3">
+                      {task.status !== 'done' && (
+                        <button
+                          onClick={() => handleUpdateStatus(task.id, 'done')}
+                          disabled={updatingTaskId === task.id}
+                          className="w-full py-4 bg-emerald-500 text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl shadow-xl shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                        >
+                          {updatingTaskId === task.id ? (
+                            <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                          ) : (
+                            <span className="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+                          )}
+                          {updatingTaskId === task.id ? 'Syncing...' : 'Mark Completed'}
+                        </button>
+                      )}
+
+                      {/* AI Context Card (if available) */}
+                      {task.ai_confidence && (
+                        <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10 relative overflow-hidden">
+                          <div className="absolute top-0 right-0 p-2 opacity-10">
+                            <span className="material-symbols-outlined text-3xl text-primary" data-icon="smart_toy">smart_toy</span>
+                          </div>
+                          <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-2">AI Dispatcher Context</p>
+                          <div className="flex items-end gap-1 mb-2">
+                            <span className="text-2xl font-black text-primary leading-none">{task.ai_confidence}%</span>
+                            <span className="text-[9px] text-primary/60 font-medium mb-0.5">Confidence</span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 line-clamp-3 italic leading-tight">
+                            {task.ai_rationale}
+                          </p>
                         </div>
-                        <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-2">AI Dispatcher Context</p>
-                        <div className="flex items-end gap-1 mb-2">
-                          <span className="text-2xl font-black text-primary leading-none">{task.ai_confidence}%</span>
-                          <span className="text-[9px] text-primary/60 font-medium mb-0.5">Confidence</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 line-clamp-3 italic leading-tight">
-                          {task.ai_rationale}
-                        </p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   {/* Optional Status Update Comment Box */}
