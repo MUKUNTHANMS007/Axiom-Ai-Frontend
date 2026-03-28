@@ -3,7 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchPendingInvites, respondToInvite, type ProjectInvite } from '../services/api';
 
-const TopBar = () => {
+interface TopBarProps {
+  onToggleSidebar?: () => void;
+}
+
+const TopBar = ({ onToggleSidebar }: TopBarProps) => {
   const [invites, setInvites] = useState<ProjectInvite[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isResponding, setIsResponding] = useState<string | null>(null);
@@ -48,26 +52,23 @@ const TopBar = () => {
   };
 
   return (
-    <header className="flex justify-between items-center px-8 h-16 w-full sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border shadow-sm transition-colors duration-500">
-      <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/')}>
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500 bg-[#050505] border border-white/10">
-          <img src="/axiom-logo.png" alt="Axiom AI Logo" className="w-full h-full object-cover" />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-xl font-headline font-black tracking-tighter text-white leading-none">
-            AXIOM <span className="text-primary tracking-widest ml-1">AI</span>
-          </span>
-          <span className="text-[10px] font-label font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">
-            Agentic Engineering
-          </span>
+    <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 border-b border-white/5 bg-gradient-to-b from-[#131313] to-[#0e0e0e] shadow-[0_20px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+      <div className="flex items-center gap-3">
+        {/* Mobile Menu Toggle */}
+        <button 
+          onClick={onToggleSidebar}
+          className="lg:hidden p-1.5 text-slate-400 hover:text-white transition-colors"
+        >
+          <span className="material-symbols-outlined" data-icon="menu">menu</span>
+        </button>
+
+        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate('/')}>
+          <span className="material-symbols-outlined text-[#B6A0FF] text-2xl" data-icon="terminal">terminal</span>
+          <h1 className="text-xl md:text-2xl font-black font-headline tracking-tighter text-[#B6A0FF] drop-shadow-[0_0_8px_rgba(182,160,255,0.4)] leading-none">
+            AXIOM <span className="tracking-widest ml-0.5">AI</span>
+          </h1>
         </div>
       </div>
-      <nav className="hidden md:flex items-center gap-8 font-label text-sm tracking-tight font-medium">
-        <Link className="text-slate-400 hover:text-white transition-colors" to="/dashboard">Explorer</Link>
-        <Link className="text-slate-400 hover:text-white transition-colors" to="/me">Profile</Link>
-        <Link className="text-slate-400 hover:text-white transition-colors" to="/team-stack">Team Stack</Link>
-        <Link className="text-slate-400 hover:text-white transition-colors" to="/settings">Settings</Link>
-      </nav>
       <div className="flex items-center gap-4 relative">
         <div className="relative">
           <button 
@@ -149,16 +150,16 @@ const TopBar = () => {
           <span className="material-symbols-outlined" data-icon="settings">settings</span>
         </button>
 
-        <div className="w-8 h-8 rounded-full overflow-hidden border border-primary/20 cursor-pointer bg-muted flex items-center justify-center" onClick={() => navigate('/me')}>
+        <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/20 overflow-hidden cursor-pointer" onClick={() => navigate('/me')}>
           {user['Photo URL'] ? (
             <img 
-              alt="User Profile Avatar" 
+              alt="User Profile" 
               className="w-full h-full object-cover" 
               src={user['Photo URL']}
             />
           ) : (
             <img 
-              alt="User Profile Avatar" 
+              alt="User Profile" 
               className="w-full h-full object-cover" 
               src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=1e1e2e&color=b6a0ff&bold=true`}
             />

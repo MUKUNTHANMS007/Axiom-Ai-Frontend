@@ -1,6 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const Sidebar = ({ onDeploy }: { onDeploy?: () => void }) => {
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface SidebarProps {
+  onDeploy?: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+const Sidebar = ({ onDeploy, isOpen, onClose }: SidebarProps) => {
   const location = useLocation();
   
   const isActive = (path: string) => location.pathname === path;
@@ -17,7 +26,25 @@ const Sidebar = ({ onDeploy }: { onDeploy?: () => void }) => {
   ];
 
   return (
-    <aside className="h-screen w-64 fixed left-0 top-0 border-r border-border bg-background flex flex-col p-4 gap-2 z-50 transition-colors duration-500">
+    <>
+      {/* Mobile Backdrop */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar Content */}
+      <aside className={cn(
+        "h-screen w-64 fixed top-0 border-r border-border bg-background flex flex-col p-4 gap-2 z-50 transition-all duration-300 transform lg:translate-x-0 lg:left-0",
+        isOpen ? "translate-x-0 left-0" : "-translate-x-full left-[-256px]"
+      )}>
       <div className="mb-8 px-2 flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg overflow-hidden bg-[#0a0a0b] border border-white/5 shadow-lg shadow-primary/10">
           <img src="/axiom-logo.png" alt="Axiom AI" className="w-full h-full object-cover" />
@@ -89,6 +116,7 @@ const Sidebar = ({ onDeploy }: { onDeploy?: () => void }) => {
         </a>
       </div>
     </aside>
+    </>
   );
 };
 

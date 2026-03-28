@@ -74,7 +74,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex-grow flex items-center justify-center px-12 py-16 relative">
+    <div className="flex-grow flex items-center justify-center px-6 py-12 lg:px-12 lg:py-16 relative">
       <BeamsBackground className="absolute inset-0 z-0 pointer-events-none opacity-100 mix-blend-screen" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
         <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] bg-primary/10 blur-[120px] rounded-full"></div>
@@ -84,14 +84,14 @@ const Dashboard = () => {
       <div className="max-w-4xl w-full flex flex-col gap-12 items-center relative z-10">
         <div className="w-full flex flex-col gap-8 text-center items-center">
           <div className="space-y-4">
-            <h1 className="text-6xl font-headline font-extrabold tracking-tighter text-white">
+            <h1 className="text-4xl md:text-6xl font-headline font-extrabold tracking-tighter text-white">
               Synthesize Your <span className="text-primary">Vision.</span>
             </h1>
-            <p className="text-on-surface-variant text-xl max-w-2xl font-light mx-auto">
+            <p className="text-on-surface-variant text-base md:text-xl max-w-2xl font-light mx-auto">
               Describe the core essence and requirements of your project. Our engine will map the optimal architectural stack in seconds.
             </p>
           </div>
-          <div className="glass-panel w-full rounded-2xl p-10 shadow-2xl shadow-black/60 border border-outline-variant/20 bg-surface-container-low/40 backdrop-blur-md">
+          <div className="glass-panel w-full rounded-2xl p-6 md:p-10 shadow-2xl shadow-black/60 border border-outline-variant/20 bg-surface-container-low/40 backdrop-blur-md">
             <div className="relative">
               <label className="block text-xs font-label font-bold uppercase tracking-widest text-primary mb-6" htmlFor="vibe-input">
                 Describe your project vibe...

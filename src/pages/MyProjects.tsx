@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { createProject, fetchProjects, type Project } from '../services/api';
 
@@ -49,99 +50,107 @@ const MyProjects = () => {
   };
 
   return (
-    <section className="p-8 lg:p-12 max-w-7xl mx-auto w-full">
-      <div className="flex justify-between items-end mb-12">
-        <div>
-          <span className="text-primary font-label font-semibold tracking-[0.2em] uppercase text-xs mb-3 block">
-            Workspace · Ecosystem
-          </span>
-          <h1 className="text-5xl font-headline font-extrabold tracking-tighter text-white mb-4">
-            My Projects
-          </h1>
-          <p className="text-slate-400 font-body text-lg max-w-xl">
-            Manage your collaborative engineering projects and team stacks.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-xl font-bold text-sm tracking-tight transition-all flex items-center gap-2"
-        >
-          <span className="material-symbols-outlined" data-icon="add">add</span>
-          New Project
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-sm">Loading your workspace...</p>
-        </div>
-      ) : projects.length === 0 ? (
-        <div className="bg-surface-container-low rounded-3xl border border-dashed border-white/10 p-20 text-center">
-          <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <span className="material-symbols-outlined text-4xl text-slate-600" data-icon="workspaces">workspaces</span>
+    <>
+      <main className="pt-24 pb-32 px-6 min-h-screen max-w-lg mx-auto lg:max-w-7xl lg:px-8">
+        {/* Header Section */}
+        <div className="flex justify-between items-end mb-10">
+          <div>
+            <p className="font-label text-[10px] uppercase tracking-[0.2em] text-primary/70 mb-1">Architecture</p>
+            <h2 className="text-3xl font-headline font-extrabold tracking-tight text-on-surface">My Projects</h2>
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">No projects yet</h3>
-          <p className="text-slate-500 mb-8 max-w-md mx-auto">
-            Create your first project to start collaborating with your team and assigning AI-powered tasks.
-          </p>
-          <button
+          <button 
             onClick={() => setShowCreateModal(true)}
-            className="text-primary hover:underline font-bold text-sm flex items-center gap-1 mx-auto"
+            className="bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-bold px-4 py-3 rounded-xl shadow-[0_8px_20px_rgba(182,160,255,0.3)] active:scale-95 transition-transform flex items-center gap-2"
           >
-            Create a project now <span className="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+            <span className="material-symbols-outlined text-[20px]" data-icon="add" style={{ fontVariationSettings: "'wght' 700" }}>add</span>
+            <span className="text-sm">New</span>
           </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              onClick={() => navigate(`/project/${project.id}`)}
-              className="bg-surface-container-low p-8 rounded-3xl border border-white/5 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 transition-all cursor-pointer group flex flex-col h-full relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[60px] rounded-full group-hover:bg-primary/10 transition-colors"></div>
-              
-              <div className="flex justify-between items-start mb-6 relative z-10">
-                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors" data-icon="folder">folder</span>
-                </div>
-                {project.owner_id === user?.name && (
-                  <span className="text-[10px] bg-primary/10 text-primary font-bold uppercase tracking-widest px-2 py-1 rounded-full">Owner</span>
-                )}
-              </div>
 
-              <h3 className="text-2xl font-headline font-bold text-white mb-3 group-hover:text-primary transition-colors relative z-10">
-                {project.name}
-              </h3>
-              <p className="text-slate-400 text-sm mb-8 line-clamp-2 flex-grow relative z-10">
-                {project.description || 'No description provided.'}
-              </p>
-
-              <div className="flex items-center justify-between pt-6 border-t border-white/5 relative z-10">
-                <div className="flex -space-x-2">
-                  {project.project_members?.slice(0, 3).map((m, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-slate-800 border-2 border-surface-container-low flex items-center justify-center text-[10px] font-bold text-white uppercase">
-                      {m.user_id.charAt(0)}
-                    </div>
-                  ))}
-                  {(project.project_members?.length || 0) > 3 && (
-                    <div className="w-8 h-8 rounded-full bg-surface-container border-2 border-surface-container-low flex items-center justify-center text-[10px] font-bold text-slate-400">
-                      +{(project.project_members?.length || 0) - 3}
-                    </div>
-                  )}
-                </div>
-                <span className="text-[10px] text-slate-600 font-mono italic">
-                  Created {new Date(project.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+        {/* Filter Chips */}
+        <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar">
+          <button className="px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold whitespace-nowrap">All Projects</button>
+          <button className="px-4 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-medium whitespace-nowrap border border-outline-variant/10">Recent</button>
+          <button className="px-4 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-medium whitespace-nowrap border border-outline-variant/10">Archived</button>
         </div>
-      )}
+
+        {/* Projects Grid */}
+        <div className="space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+          {loading ? (
+            <div className="col-span-full py-20 text-center">
+              <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-on-surface-variant text-sm italic">Synchronizing neural nodes...</p>
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="col-span-full p-20 text-center border-2 border-dashed border-outline-variant/20 rounded-3xl">
+              <p className="text-on-surface-variant mb-4 font-light">Ecosystem initialized but empty.</p>
+              <button onClick={() => setShowCreateModal(true)} className="text-primary font-bold hover:underline">Launch first project</button>
+            </div>
+          ) : (
+            projects.map((project) => (
+              <div 
+                key={project.id} 
+                onClick={() => navigate(`/project/${project.id}`)}
+                className="glass-card glow-border rounded-xl p-6 border border-white/5 relative overflow-hidden group cursor-pointer active:scale-[0.98] transition-all"
+              >
+                <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
+                  <span className="material-symbols-outlined text-4xl" data-icon="hub">hub</span>
+                </div>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex flex-col gap-1">
+                    <span className={cn(
+                      "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase mb-1 w-fit",
+                      project.owner_id === user?.name ? "bg-secondary-container text-secondary" : "bg-surface-container-highest text-on-surface-variant"
+                    )}>
+                      {project.owner_id === user?.name ? 'Owner' : 'Collaborator'}
+                    </span>
+                    <h3 className="text-xl font-headline font-bold text-on-surface">{project.name}</h3>
+                  </div>
+                  <button className="text-on-surface-variant hover:text-primary transition-colors">
+                    <span className="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                  </button>
+                </div>
+                <p className="text-on-surface-variant text-sm leading-relaxed mb-6 line-clamp-2">
+                  {project.description || 'No specialized engineering parameters defined for this project instance.'}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex -space-x-3">
+                    {project.project_members?.slice(0, 3).map((m, i) => (
+                      <div key={i} className="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-surface-container overflow-hidden">
+                        <img 
+                          alt="Avatar" 
+                          src={`https://ui-avatars.com/api/?name=${m.user_id}&background=1e1e2e&color=b6a0ff&bold=true`}
+                        />
+                      </div>
+                    ))}
+                    {(project.project_members?.length || 0) > 3 && (
+                      <div className="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-primary">
+                        +{(project.project_members?.length || 0) - 3}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="font-label text-[10px] uppercase tracking-wider text-outline mb-0.5">Created</p>
+                    <p className="text-xs font-semibold text-on-surface">
+                      {new Date(project.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Contextual FAB for New Project */}
+        <div className="fixed right-6 bottom-28 lg:hidden z-50">
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="w-14 h-14 rounded-2xl bg-primary shadow-[0_15px_30px_rgba(182,160,255,0.4)] flex items-center justify-center text-on-primary active:scale-95 transition-transform"
+          >
+            <span className="material-symbols-outlined text-3xl" data-icon="add" style={{ fontVariationSettings: "'wght' 700" }}>add</span>
+          </button>
+        </div>
+      </main>
 
       {/* Create Modal */}
       {showCreateModal && (
@@ -207,7 +216,7 @@ const MyProjects = () => {
           </motion.div>
         </div>
       )}
-    </section>
+    </>
   );
 };
 

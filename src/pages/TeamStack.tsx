@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
+import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchSavedStacks, fetchHistory, assignTask, searchUsers, createInvite, createProject, fetchProject, type TaskAssignment } from '../services/api';
@@ -234,195 +235,188 @@ const TeamStack = () => {
   };
 
   return (
-    <section className="p-12 max-w-7xl mx-auto">
-      <div className="mb-12">
-        <h1 className="text-5xl font-headline font-extrabold tracking-tighter text-white mb-4">Team Stack</h1>
-        <p className="text-slate-400 font-body text-lg">Align your team's technical DNA with project goals.</p>
+    <>
+    <main className="pt-24 pb-32 px-5 space-y-6 max-w-lg mx-auto lg:max-w-7xl lg:px-8">
+      {/* Welcome / Page Header */}
+      <section className="space-y-1">
+        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/80 font-label">Team Architecture</span>
+        <h2 className="text-3xl font-extrabold tracking-tight text-on-surface font-headline leading-none">Engineering Core</h2>
+      </section>
+
+      {/* Technical Synergy Section */}
+      <section className="p-6 rounded-xl bg-surface-container-low luminous-edge relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-4">
+          <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20 ai-pulse">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Rapid Prototyping</span>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-on-surface-variant">Technical Synergy</p>
+            <p className="text-5xl font-headline font-bold text-primary tracking-tighter leading-none">94.2%</p>
+          </div>
+          <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-primary to-secondary w-[94.2%] transition-all duration-1000"></div>
+          </div>
+          <p className="text-xs text-on-surface-variant leading-relaxed">
+            System architecture is aligned with current sprint velocity. Node redundancy minimized.
+          </p>
+        </div>
+      </section>
+
+      {/* Project Vibe & Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Vibe Score Card */}
+        <div className="p-5 rounded-xl bg-surface-container-high flex flex-col justify-between items-start aspect-square relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <span className="material-symbols-outlined text-8xl" data-icon="rocket_launch">rocket_launch</span>
+          </div>
+          <span className="material-symbols-outlined text-secondary" data-icon="mood">mood</span>
+          <div className="mt-auto">
+            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Vibe Score</p>
+            <p className="text-4xl font-headline font-black text-on-surface tracking-tighter">88</p>
+          </div>
+        </div>
+        
+        {/* Active Nodes Card */}
+        <div className="p-5 rounded-xl bg-surface-container-high flex flex-col justify-between items-start aspect-square">
+          <span className="material-symbols-outlined text-tertiary" data-icon="hub">hub</span>
+          <div className="mt-auto">
+            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Active Nodes</p>
+            <p className="text-4xl font-headline font-black text-on-surface tracking-tighter">{dynamicMembers.length}</p>
+          </div>
+        </div>
+
+        {/* Saved Stacks (Desktop only or shared) */}
+        <div className="hidden lg:flex p-5 rounded-xl bg-surface-container-high flex-col justify-between items-start aspect-square border-t border-primary/10">
+          <span className="material-symbols-outlined text-primary" data-icon="inventory_2">inventory_2</span>
+          <div className="mt-auto w-full">
+            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Design Vault</p>
+            <p className="text-4xl font-headline font-black text-on-surface tracking-tighter">{savedStacks.length}</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {dynamicMembers.map((member, index) => (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            key={index} 
-            className="bg-surface-container-low p-6 rounded-2xl border border-white/5 hover:border-primary/20 transition-all group"
+      {/* Team Stack (Vertical) */}
+      <section className="space-y-4">
+        <div className="flex justify-between items-end px-1">
+          <h3 className="text-lg font-bold font-headline">Team Stack</h3>
+          <span className="text-[10px] text-on-surface-variant font-medium uppercase">{dynamicMembers.length} ARCHITECTS</span>
+        </div>
+        
+        <div className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
+          {/* Invite Architect Card */}
+          <div 
+            onClick={handleInvite}
+            className="p-4 rounded-xl border-2 border-dashed border-outline-variant/30 flex items-center gap-4 group cursor-pointer active:scale-95 transition-all"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <div className={`w-12 h-12 rounded-full ${member.color}/20 flex items-center justify-center border border-${member.color}/30 text-white`}>
-                <span className="material-symbols-outlined" data-icon="person">person</span>
-              </div>
-              <div>
-                <h3 className="text-white font-bold">{member.name}</h3>
-                <p className="text-slate-500 text-xs uppercase tracking-widest">{member.role}</p>
-              </div>
+            <div className="w-12 h-12 rounded-full border border-dashed border-outline-variant flex items-center justify-center bg-surface-container-low text-on-surface-variant group-hover:text-primary group-hover:border-primary/50 transition-colors">
+              <span className="material-symbols-outlined" data-icon="person_add">person_add</span>
             </div>
-            
-            <div className="space-y-3">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Core Competencies</h4>
-              <div className="flex flex-wrap gap-2">
-                {member.skills.map((skill: string) => (
-                  <span key={skill} className="px-3 py-1 bg-white/5 rounded-full text-xs text-slate-300 border border-white/10 group-hover:border-primary/10 transition-colors">
-                    {skill}
+            <div>
+              <p className="font-bold text-on-surface">Invite Architect</p>
+              <p className="text-xs text-on-surface-variant">Expand your technical cluster</p>
+            </div>
+          </div>
+
+          {/* Member Cards */}
+          {dynamicMembers.map((member, index) => (
+            <div key={index} className="p-4 rounded-xl bg-surface-container-lowest glass-card luminous-edge flex items-center gap-4 group">
+              <div className="relative">
+                <div className={`w-12 h-12 rounded-full overflow-hidden border border-white/10 ${member.color}/20 flex items-center justify-center`}>
+                  <img 
+                    alt={member.name}
+                    className="w-full h-full object-cover" 
+                    src={`https://ui-avatars.com/api/?name=${member.name}&background=1e1e2e&color=b6a0ff&bold=true`}
+                  />
+                </div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface-container-lowest rounded-full"></div>
+              </div>
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <p className="font-bold text-on-surface">{member.name}</p>
+                  <span className={cn(
+                    "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
+                    member.role.includes('Lead') ? "text-secondary bg-secondary/10" : "text-tertiary bg-tertiary/10"
+                  )}>
+                    {member.role.includes('Lead') ? "LEAD" : "DATA"}
                   </span>
-                ))}
+                </div>
+                <p className="text-xs text-on-surface-variant">{member.skills.slice(0, 2).join(' & ')}</p>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="mt-8 pt-6 border-t border-white/5">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-slate-500">Vibe Alignment</span>
-                <span className="text-xs text-primary font-bold">94%</span>
-              </div>
-              <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: '94%' }}></div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-
-        {/* Invite Architect Card */}
+      {/* Primary Actions */}
+      <section className="flex flex-col lg:flex-row gap-3 pt-4">
         <button 
-          onClick={handleInvite}
-          className="bg-surface-container-low p-6 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-4 hover:bg-white/5 hover:border-primary/30 transition-all group"
+          onClick={handleOptimize}
+          disabled={isOptimizing}
+          className="w-full lg:w-auto lg:px-8 py-4 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform"
         >
-          <div className="w-12 h-12 rounded-full border border-dashed border-white/20 flex items-center justify-center text-slate-500 group-hover:text-primary group-hover:border-primary/40 transition-all">
-            <span className="material-symbols-outlined text-2xl" data-icon="person_add">person_add</span>
-          </div>
-          <p className="text-slate-500 text-sm font-medium group-hover:text-white transition-colors">Invite Architect</p>
-          <p className="text-[10px] text-slate-600 tracking-widest uppercase">Search · Link · QR</p>
+          {isOptimizing ? (
+            <div className="w-5 h-5 border-2 border-on-primary-fixed/30 border-t-on-primary-fixed rounded-full animate-spin"></div>
+          ) : (
+            <span className="material-symbols-outlined text-lg" data-icon="bolt">bolt</span>
+          )}
+          {isOptimizing ? 'Optimizing...' : 'Optimize Bench'}
         </button>
-      </div>
+        <button 
+          onClick={() => navigate('/workflow')}
+          className="w-full lg:w-auto lg:px-8 py-4 rounded-full bg-surface-container-highest text-on-surface font-bold flex items-center justify-center gap-2 border border-outline-variant/20 active:scale-95 transition-transform"
+        >
+          <span className="material-symbols-outlined text-lg" data-icon="account_tree">account_tree</span>
+          View Workflow
+        </button>
+      </section>
 
-      {/* Team Intelligence Overview */}
-      <div className="mt-12 bg-surface-container-low p-10 rounded-3xl border border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full"></div>
-        <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center">
-          <div className="flex-1">
-            <h2 className="text-3xl font-headline font-bold text-white mb-4">Technical Synergy</h2>
-            <p className="text-slate-400 mb-6 leading-relaxed">
-              Based on your team profile and project history, you are currently optimized for 
-              <span className="text-white font-medium"> Rapid Prototyping</span> and 
-              <span className="text-white font-medium"> Distributed Systems</span>. 
-              The synthesis engine recommends adding a DevOps specialist to balance the stack.
-            </p>
-            <div className="flex gap-4">
-              <button 
-                onClick={handleOptimize}
-                disabled={isOptimizing}
-                className="bg-white text-black px-6 py-2.5 rounded-lg text-sm font-bold tracking-tight hover:bg-slate-200 transition-colors flex items-center gap-2"
-              >
-                {isOptimizing ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
-                    Computing...
-                  </>
-                ) : 'Optimize Bench'}
-              </button>
-              <button 
-                onClick={() => navigate('/workflow')}
-                className="bg-white/5 text-white border border-white/10 px-6 py-2.5 rounded-lg text-sm font-bold tracking-tight hover:bg-white/10 transition-colors"
-              >
-                View Workflow
-              </button>
-            </div>
-          </div>
-          <div className="w-full md:w-64 aspect-square rounded-full border-8 border-primary/20 flex items-center justify-center relative">
-             <div className="absolute inset-0 rounded-full border-8 border-primary border-t-transparent animate-spin-slow"></div>
-             <div className="text-center">
-               <span className="text-5xl font-headline font-black text-white">88</span>
-               <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Project Vibe</p>
-             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* AI Task Dispatcher */}
-      <div className="mt-16">
-        <div className="flex items-center gap-3 mb-8">
+      {/* AI Task Dispatcher (Retained logic, new style) */}
+      <section className="pt-8 space-y-4">
+        <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-primary" data-icon="smart_toy">smart_toy</span>
-          <h2 className="font-headline text-2xl font-bold text-white uppercase tracking-widest text-sm">AI Task Dispatcher</h2>
-          <span className="ml-2 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">Powered by Groq</span>
+          <h2 className="font-headline text-lg font-bold text-on-surface uppercase tracking-widest">Task Dispatcher</h2>
         </div>
-
-        <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] rounded-full"></div>
-          <div className="relative z-10">
-            <p className="text-slate-400 text-sm mb-6 max-w-xl">
-              Describe a task and the AI will analyze your team's skill profiles and automatically assign it to the most suitable member.
-            </p>
-
-            <div className="flex gap-3">
+        <div className="bg-surface-container-low p-6 rounded-2xl border border-white/5 space-y-4">
+           <div className="flex gap-3">
               <input
                 type="text"
                 value={taskInput}
                 onChange={e => setTaskInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !isAssigning && taskInput.trim() && handleAssignTask()}
-                placeholder="e.g. Build the real-time WebSocket API for collaborative editing..."
-                className="flex-1 bg-black/40 border border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-primary/50 transition-colors"
+                placeholder="Describe a task for the team..."
+                className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm text-on-surface placeholder-on-surface-variant/50 focus:outline-none focus:border-primary/50"
               />
               <button
                 onClick={handleAssignTask}
                 disabled={isAssigning || !taskInput.trim()}
-                className="px-6 py-3 bg-primary text-white rounded-xl font-bold text-sm tracking-tight hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                className="bg-primary/20 hover:bg-primary/30 text-primary p-3 rounded-xl transition-all disabled:opacity-50"
               >
                 {isAssigning ? (
-                  <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Analyzing...</>
+                  <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                 ) : (
-                  <><span className="material-symbols-outlined text-sm" data-icon="send">send</span> Assign</>  
+                  <span className="material-symbols-outlined" data-icon="send">send</span>
                 )}
               </button>
-            </div>
-
-            {assignError && (
-              <p className="mt-3 text-red-400 text-xs">{assignError}</p>
-            )}
-
-            {assignment && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6"
-              >
-                {/* Assignment Card */}
-                <div className="md:col-span-2 bg-black/40 border border-primary/30 rounded-2xl p-6 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-[40px] rounded-full"></div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center text-lg font-black text-primary flex-shrink-0">
-                      {assignment.assigned_to.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h3 className="text-white font-bold text-lg">{assignment.assigned_to}</h3>
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase">Assigned</span>
-                      </div>
-                      <p className="text-slate-400 text-sm leading-relaxed">{assignment.rationale}</p>
-                    </div>
-                  </div>
+           </div>
+           
+           {assignment && (
+             <motion.div
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               className="p-4 bg-primary/5 border border-primary/20 rounded-xl space-y-2"
+             >
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-primary">Assigned to {assignment.assigned_to}</span>
+                  <span className="text-[10px] font-black text-primary/60 uppercase">{assignment.confidence}% Confidence</span>
                 </div>
-
-                {/* Stats */}
-                <div className="space-y-3">
-                  <div className="bg-black/40 border border-white/5 rounded-xl p-4">
-                    <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">AI Confidence</p>
-                    <div className="flex items-end gap-2">
-                      <span className="text-3xl font-headline font-black text-primary">{assignment.confidence}%</span>
-                    </div>
-                    <div className="mt-2 w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: `${assignment.confidence}%` }}></div>
-                    </div>
-                  </div>
-                  <div className="bg-black/40 border border-white/5 rounded-xl p-4">
-                    <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Est. Effort</p>
-                    <p className="text-white font-bold text-sm">{assignment.estimated_effort}</p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </div>
+                <p className="text-xs text-on-surface-variant italic leading-relaxed">{assignment.rationale}</p>
+             </motion.div>
+           )}
         </div>
-      </div>
+      </section>
 
       {/* Architecture Vault: Saved Stacks */}
       <div className="mt-16">
@@ -470,8 +464,9 @@ const TeamStack = () => {
             </div>
         )}
       </div>
+    </main>
 
-      {/* ─── Invite Modal ─────────────────────────────────────────────────────── */}
+    {/* ─── Invite Modal ─────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {showInviteModal && (
           <motion.div
@@ -631,7 +626,7 @@ const TeamStack = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </>
   );
 };
 
