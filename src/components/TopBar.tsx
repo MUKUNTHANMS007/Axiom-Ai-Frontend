@@ -121,10 +121,18 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
                       >
                         <div className="flex items-start gap-3 mb-3">
                           <div className={`w-8 h-8 rounded-full border flex items-center justify-center text-[10px] font-black flex-shrink-0 ${
-                            notification.type === 'invite' ? 'bg-primary/20 border-primary/40 text-primary' : 'bg-white/5 border-white/10 text-slate-400'
+                            notification.type === 'invite' ? 'bg-primary/20 border-primary/40 text-primary' : 
+                            notification.type === 'invite_accepted' ? 'bg-green-500/20 border-green-500/40 text-green-500' :
+                            'bg-white/5 border-white/10 text-slate-400'
                           }`}>
-                            <span className="material-symbols-outlined text-sm font-black" data-icon={notification.type === 'invite' ? 'mail' : 'info'}>
-                              {notification.type === 'invite' ? 'mail' : 'info'}
+                            <span className="material-symbols-outlined text-sm font-black" data-icon={
+                              notification.type === 'invite' ? 'mail' : 
+                              notification.type === 'invite_accepted' ? 'handshake' : 
+                              'info'
+                            }>
+                              {notification.type === 'invite' ? 'mail' : 
+                               notification.type === 'invite_accepted' ? 'handshake' : 
+                               'info'}
                             </span>
                           </div>
                           <div className="flex-1 min-w-0">
