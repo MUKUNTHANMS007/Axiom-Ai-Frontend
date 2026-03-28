@@ -47,8 +47,8 @@ const TeamStack = () => {
         const projectId = await getOrCreateProjectId();
         const projectData = await fetchProject(projectId);
         
-        if (projectData && projectData.project_members) {
-          const members = projectData.project_members.map((m: any) => ({
+        if (projectData) {
+          let members = (projectData.project_members || []).map((m: any) => ({
             name: m.user_id,
             role: m.role === 'leader' ? 'Lead Architect' : 'Strategic Engineering Architect',
             skills: m.role === 'leader' 
@@ -56,9 +56,19 @@ const TeamStack = () => {
               : ['Supabase', 'SQL Database', 'Backend API', 'Tailwind CSS', 'UI Implementation'],
             color: m.role === 'leader' ? 'bg-primary' : 'bg-indigo-500'
           }));
+
+          // Ensure owner is in the list
+          if (!members.find((m: any) => m.name === user.name)) {
+            members.unshift({
+               name: user.name,
+               role: 'Lead Architect',
+               skills: ['Next.js', 'Vercel Deployment', 'Architecture', 'TypeScript', 'Project Strategy'],
+               color: 'bg-primary'
+            });
+          }
           setDynamicMembers(members);
         } else {
-          // Fallback if no members found somehow (should at least have owner)
+          // Fallback if no project found
           setDynamicMembers([{ 
             name: user.name, 
             role: 'Lead Architect', 
@@ -334,8 +344,8 @@ const TeamStack = () => {
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface-container-lowest rounded-full"></div>
               </div>
               <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <p className="font-bold text-on-surface">{member.name}</p>
+                <div className="flex justify-between items-start gap-2">
+                  <p className="font-bold text-on-surface truncate max-w-[120px] sm:max-w-[200px]" title={member.name}>{member.name}</p>
                   <span className={cn(
                     "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
                     member.role.includes('Lead') ? "text-secondary bg-secondary/10" : "text-tertiary bg-tertiary/10"
