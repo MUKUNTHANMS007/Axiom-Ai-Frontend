@@ -16,6 +16,9 @@ const ProjectDetail = () => {
   const [searchResults, setSearchResults] = useState<{ username: string }[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteMode, setInviteMode] = useState<'search' | 'link'>('search');
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   
   // AI Dispatcher State
   const [taskInput, setTaskInput] = useState('');
@@ -68,14 +71,28 @@ const ProjectDetail = () => {
 
   const handleCreateInvite = async (username?: string) => {
     if (!projectId || !user?.name) return;
+    setIsGeneratingLink(true);
     try {
       const invite = await createInvite(projectId, user.name, username);
       setInviteToken(invite.token);
+      if (!username) {
+        setInviteMode('link');
+      }
       setInviteQuery('');
       setSearchResults([]);
     } catch (err) {
       console.error('Invite failed:', err);
+    } finally {
+      setIsGeneratingLink(false);
     }
+  };
+
+  const handleCopyLink = () => {
+    if (!inviteToken) return;
+    const url = `${window.location.origin}/invite/${inviteToken}`;
+    navigator.clipboard.writeText(url);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   };
 
   const handleAIDispatch = async () => {
@@ -142,12 +159,6 @@ const ProjectDetail = () => {
     }
   };
 
-  const copyInviteLink = () => {
-    if (!inviteToken) return;
-    const url = `${window.location.origin}/invite/${inviteToken}`;
-    navigator.clipboard.writeText(url);
-  };
-
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-40 gap-4">
       <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -199,104 +210,154 @@ const ProjectDetail = () => {
         {/* Main Content Area */}
         <div className="lg:col-span-8 space-y-12">
           {activeTab === 'team' && (
-            <div className="space-y-10">
-              {/* Invite Panel (Owner Only) */}
+            <div className="space-y-10">              {/* Invite Panel (Owner Only) synchronized with TeamStack */}
               {isOwner && (
-                <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full"></div>
-                  <h2 className="text-xl font-headline font-bold text-white mb-6 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-sm" data-icon="person_add">person_add</span>
-                    Invite Collaborators
-                  </h2>
+                <div className="bg-surface-container-low rounded-3xl border border-white/5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full -z-10"></div>
                   
-                  <div className="relative mb-6">
-                    <div className="flex gap-2">
-                      <div className="relative flex-grow">
-                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg" data-icon="search">search</span>
-                        <input
-                          type="text"
-                          value={inviteQuery}
-                          onChange={e => handleSearchUsers(e.target.value)}
-                          placeholder="Search users on platform..."
-                          className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-5 py-4 text-white focus:outline-none focus:border-primary transition-colors"
-                        />
+                  <div className="p-8 pb-4">
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <h2 className="text-xl font-headline font-bold text-white flex items-center gap-2">
+                          <span className="material-symbols-outlined text-primary text-sm" data-icon="person_add">person_add</span>
+                          Invite Collaborators
+                        </h2>
+                        <p className="text-slate-500 text-xs mt-1">Onboard architects to this technical workspace.</p>
                       </div>
-                      <button
-                        onClick={() => handleCreateInvite()}
-                        className="bg-white/5 hover:bg-white/10 text-white px-6 py-4 rounded-xl font-bold text-sm border border-white/10 transition-all"
-                      >
-                        Generate Link
-                      </button>
                     </div>
-
-                    {/* Search Results Dropdown */}
-                    <AnimatePresence>
-                      {isSearching || searchResults.length > 0 ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="absolute left-0 right-0 top-full mt-2 bg-surface-container-low border border-white/10 rounded-2xl shadow-2xl z-20 overflow-hidden"
+                    
+                    {/* Tab Switcher */}
+                    <div className="flex bg-black/40 rounded-xl p-1 gap-1 mb-8">
+                      {(['search', 'link'] as const).map((mode) => (
+                        <button
+                          key={mode}
+                          onClick={() => setInviteMode(mode)}
+                          className={`flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                            inviteMode === mode ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-white'
+                          }`}
                         >
-                          {isSearching ? (
-                            <div className="p-4 text-center text-xs text-slate-500">Searching platform database...</div>
-                          ) : (
-                            searchResults.map(u => (
-                              <button
-                                key={u.username}
-                                onClick={() => handleCreateInvite(u.username)}
-                                className="w-full p-4 flex items-center justify-between hover:bg-white/5 text-left transition-colors group border-b border-white/5 last:border-0"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-black text-primary">
-                                    {u.username.charAt(0).toUpperCase()}
-                                  </div>
-                                  <span className="text-sm font-bold text-white uppercase tracking-wider">{u.username}</span>
-                                </div>
-                                <span className="material-symbols-outlined text-slate-700 group-hover:text-primary transition-colors" data-icon="arrow_forward">arrow_forward</span>
-                              </button>
-                            ))
-                          )}
-                        </motion.div>
-                      ) : inviteQuery.length >= 2 && searchResults.length === 0 && !isSearching ? (
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-surface-container-low border border-white/10 rounded-2xl p-4 text-center text-xs text-slate-500 z-20 shadow-2xl">
-                          No users found with that name. Maybe generate an invite link instead?
-                        </div>
-                      ) : null}
-                    </AnimatePresence>
+                          <span className="material-symbols-outlined text-sm" data-icon={mode === 'search' ? 'search' : 'link'}>{mode === 'search' ? 'search' : 'link'}</span>
+                          {mode === 'search' ? 'Search Users' : 'Share Link'}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Generated Invite Token */}
-                  <AnimatePresence>
-                    {inviteToken && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-primary/5 border border-primary/20 p-5 rounded-2xl flex items-center justify-between gap-4"
-                      >
-                        <div className="flex-grow">
-                          <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Invite link generated</p>
-                          <p className="text-white text-xs font-mono truncate max-w-md">{window.location.origin}/invite/{inviteToken}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={copyInviteLink}
-                            className="p-3 bg-primary text-white rounded-xl hover:bg-primary/80 transition-colors"
-                            title="Copy Link"
-                          >
-                            <span className="material-symbols-outlined text-lg" data-icon="content_copy">content_copy</span>
-                          </button>
-                          <button
-                            onClick={() => setInviteToken(null)}
-                            className="p-3 bg-white/5 text-slate-500 rounded-xl hover:bg-white/10 transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-lg" data-icon="close">close</span>
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  <div className="px-8 pb-8">
+                    <AnimatePresence mode="wait">
+                      {inviteMode === 'search' ? (
+                        <motion.div key="search" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
+                          <div className="relative">
+                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg" data-icon="search">search</span>
+                            <input
+                              type="text"
+                              value={inviteQuery}
+                              onChange={e => handleSearchUsers(e.target.value)}
+                              placeholder="Search by username handle..."
+                              className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-5 py-4 text-white focus:outline-none focus:border-primary transition-colors"
+                            />
+                            {isSearching && <div className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />}
+                          </div>
+
+                          <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                            {searchResults.length > 0 ? searchResults.map(u => (
+                              <div key={u.username} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-black text-primary">
+                                    {u.username.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <p className="text-white text-sm font-bold uppercase tracking-wider">{u.username}</p>
+                                    <p className="text-slate-600 text-[9px] uppercase tracking-widest font-black">Ready for Sync</p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleCreateInvite(u.username)}
+                                  className="px-6 py-2 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-primary/20"
+                                >
+                                  Invite
+                                </button>
+                              </div>
+                            )) : inviteQuery.length >= 2 && !isSearching ? (
+                              <div className="text-center py-6 text-slate-600 italic text-xs">No users found on the network.</div>
+                            ) : (
+                              <div className="text-center py-6 text-slate-700">
+                                <span className="material-symbols-outlined text-4xl block mb-2" data-icon="manage_search">manage_search</span>
+                                <p className="text-[10px] uppercase font-black tracking-[0.2em]">Scan for available architects</p>
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <motion.div key="link" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
+                          {!inviteToken ? (
+                            <div className="text-center py-10 space-y-6">
+                              <p className="text-slate-500 text-sm italic max-w-sm mx-auto">Generate a global invite link to share via Slack, Discord, or email.</p>
+                              <button
+                                onClick={() => handleCreateInvite()}
+                                disabled={isGeneratingLink}
+                                className="w-full py-4 bg-primary/10 border border-primary/20 hover:bg-primary/20 text-primary font-black uppercase text-xs tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-2 group"
+                              >
+                                {isGeneratingLink ? (
+                                  <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                ) : (
+                                  <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform" data-icon="link">link</span>
+                                )}
+                                {isGeneratingLink ? 'Generating Neural Link...' : 'Generate New Invite Token'}
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="space-y-6">
+                              <div className="p-5 bg-black/40 border border-white/10 rounded-2xl">
+                                <div className="flex items-center justify-between mb-2">
+                                  <p className="text-[10px] font-black text-primary uppercase tracking-widest">Active Invite URL</p>
+                                  {linkCopied && <span className="text-[9px] text-emerald-400 font-bold uppercase animate-pulse">✓ Copied</span>}
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <p className="text-white text-xs font-mono truncate flex-1">{window.location.origin}/invite/{inviteToken}</p>
+                                  <button
+                                    onClick={handleCopyLink}
+                                    className="p-2.5 bg-white/5 hover:bg-primary text-white rounded-xl transition-all border border-white/10 hover:border-primary"
+                                  >
+                                    <span className="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col items-center gap-6 py-4 px-8 rounded-3xl bg-gradient-to-br from-primary/10 via-white/5 to-transparent border border-white/5 relative group/qr shadow-2xl overflow-hidden min-h-[300px] justify-center text-center">
+                                <div className="relative z-10 p-4 bg-white rounded-2xl shadow-inner group-hover/qr:scale-[1.02] transition-transform duration-500">
+                                  <img 
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`${window.location.origin}/invite/${inviteToken}`)}&color=000000&bgcolor=ffffff&margin=1`}
+                                    alt="Project Invite QR"
+                                    className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg opacity-0 transition-opacity duration-700"
+                                    onLoad={(e) => (e.currentTarget.style.opacity = '1')}
+                                  />
+                                </div>
+                                <div className="relative z-10 space-y-1">
+                                  <p className="text-primary font-black uppercase text-[10px] tracking-[0.4em]">Project Access Terminal</p>
+                                  <p className="text-slate-500 text-[9px] uppercase font-bold tracking-widest">Scanning initializes team synchronization</p>
+                                </div>
+                                {/* Decorative elements from TeamStack */}
+                                <div className="absolute inset-0 bg-primary/5 blur-[80px] rounded-full -z-10 animate-pulse"></div>
+                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 blur-[60px] rounded-full -z-10 group-hover/qr:bg-primary/20 transition-colors"></div>
+                              </div>
+
+                              <button 
+                                onClick={() => handleCreateInvite()}
+                                className="w-full py-2 text-slate-600 hover:text-white text-[10px] uppercase tracking-[0.3em] font-black transition-colors flex items-center justify-center gap-2 group"
+                              >
+                                <span className="material-symbols-outlined text-xs group-hover:rotate-180 transition-transform duration-700" data-icon="refresh">refresh</span>
+                                Recycle Invite Bridge
+                              </button>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               )}
+
 
               {/* Team Roster */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
