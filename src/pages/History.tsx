@@ -16,7 +16,7 @@ const History = () => {
       try {
         const localSession = localStorage.getItem("vibe_session");
         const user = localSession ? JSON.parse(localSession).user : null;
-        const user_id = user?.id || user?.name;
+        const user_id = user?.name || user?.id;
         
         const data = await fetchHistory(user_id);
         setExplorations(data);

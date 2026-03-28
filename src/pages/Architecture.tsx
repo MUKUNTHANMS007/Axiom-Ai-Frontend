@@ -35,7 +35,7 @@ const Architecture = () => {
     const user = getUser();
     if (!user) return;
     try {
-      const data = await fetchHistory(user.id || user.name);
+      const data = await fetchHistory(user.name || user.id);
       setExplorations(data);
     } catch (err) {
       console.error('Error fetching history:', err);
