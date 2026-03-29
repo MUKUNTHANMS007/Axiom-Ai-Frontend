@@ -110,10 +110,17 @@ const Sidebar = ({ onDeploy, isOpen, onClose }: SidebarProps) => {
           <span className="material-symbols-outlined text-lg" data-icon="menu_book">menu_book</span>
           <span>Docs</span>
         </Link>
-        <a className="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-slate-200 hover:bg-white/5 transition-colors font-label text-sm" href="#">
+        <Link
+          to="/support"
+          className={`flex items-center gap-3 px-3 py-2 transition-colors font-label text-sm ${
+            isActive('/support') 
+              ? 'bg-white/10 text-white rounded-lg font-semibold' 
+              : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
+          }`}
+        >
           <span className="material-symbols-outlined text-lg" data-icon="support_agent">support_agent</span>
           <span>Support</span>
-        </a>
+        </Link>
       </div>
     </aside>
     </>

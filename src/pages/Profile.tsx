@@ -225,14 +225,44 @@ const Profile = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2 }}
                         >
-                            <Card className="glass-card p-6 border-border/10 rounded-[2rem]">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-6">Access Layer</h3>
-                                <button 
-                                    onClick={() => window.location.href = `mailto:${user['Email'] || 'mukunthan@axiom.ai'}?subject=Architectural Collaboration: ${user['User Name']}`}
-                                    className="w-full h-12 rounded-xl bg-muted border border-border flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                                >
-                                    <Mail className="w-4 h-4" /> Open Comms Channel
-                                </button>
+                            <Card className="glass-card p-6 border-border/10 rounded-[2rem] relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/10 transition-colors duration-500" />
+                                
+                                <div className="relative z-10">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Access Layer</h3>
+                                        <div className="flex items-center gap-2">
+                                            <span className="relative flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                            </span>
+                                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Active</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 mb-6">
+                                        <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
+                                            <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Neural Link Status</p>
+                                            <p className="text-xs font-bold text-white uppercase tracking-widest">Protocol Synchronized</p>
+                                        </div>
+                                        <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
+                                            <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Last Signal Activity</p>
+                                            <p className="text-xs font-bold text-white uppercase tracking-widest">
+                                                {history.length > 0 ? `${new Date(history[0].created_at).toLocaleTimeString()} UTC` : "Carrier Only"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => {
+                                            const email = user['Email'] || 'mukunthan@axiom.ai';
+                                            window.location.href = `mailto:${email}?subject=Architectural Collaboration: ${user['User Name']}`;
+                                        }}
+                                        className="w-full h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center gap-3 text-xs font-black uppercase tracking-[0.15em] hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-xl shadow-primary/20"
+                                    >
+                                        <Mail className="w-4 h-4" /> Open Comms Channel
+                                    </button>
+                                </div>
                             </Card>
                         </motion.div>
                     </div>

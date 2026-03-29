@@ -15,6 +15,7 @@ import InviteAccept from './pages/InviteAccept';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Docs from './pages/Docs';
+import Support from './pages/Support';
 import Architecture from './pages/Architecture';
 import { supabase } from './lib/supabase';
 
@@ -110,6 +111,7 @@ function App() {
             <Route path="/invite/:token" element={<InviteAccept />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/docs" element={<Docs />} />
+            <Route path="/support" element={<Support />} />
             <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/me" element={<Profile />} />

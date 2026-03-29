@@ -435,3 +435,15 @@ export const fetchWorkflowTaskUpdates = async (project_ids: string[]): Promise<a
   if (!res.ok) return [];
   return res.json();
 };
+
+export const submitSupportRequest = async (user_id: string, username: string, message: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/v1/support`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id, username, message }),
+  });
+  if (!res.ok) {
+     const err = await res.json();
+     throw new Error(err.detail || 'Neural relay failed');
+  }
+  return res.json();
+};
