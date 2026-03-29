@@ -130,6 +130,7 @@ export const fetchSavedStacks = async (user_id: string) => {
 
 export interface AnalyticsData {
   total_syntheses: number;
+  total_saved_stacks: number;
   average_score: number;
   top_frameworks: { name: string; count: number }[];
   activity: { date: string; syntheses: number }[];

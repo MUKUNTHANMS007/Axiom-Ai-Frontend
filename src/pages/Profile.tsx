@@ -36,11 +36,12 @@ const Profile = () => {
         const fetchProfile = async () => {
             try {
                 let targetId = userId;
-                const sessionStr = localStorage.getItem("vibe_session");
-                const session = sessionStr ? JSON.parse(sessionStr) : null;
+                
+                // Fetch current user from Supabase if no ID in URL
+                const { data: { user: authUser } } = await supabase.auth.getUser();
 
-                if (!targetId && session) {
-                    targetId = session.user.id;
+                if (!targetId && authUser) {
+                    targetId = authUser.id;
                 }
 
                 if (!targetId) {
@@ -48,7 +49,7 @@ const Profile = () => {
                     return;
                 }
 
-                setIsOwnProfile(session?.user?.id.toString() === targetId.toString());
+                setIsOwnProfile(authUser?.id === targetId);
 
                 const { data, error } = await supabase
                     .from('User')
@@ -205,7 +206,7 @@ const Profile = () => {
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Saved Stacks</span>
-                                        <span className="text-xl font-black tracking-widest">{analytics?.total_syntheses ? Math.floor(analytics.total_syntheses / 4) + 1 : 0}</span>
+                                        <span className="text-xl font-black tracking-widest">{analytics?.total_saved_stacks || 0}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Axioms Synthesized</span>
