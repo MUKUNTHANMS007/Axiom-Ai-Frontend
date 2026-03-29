@@ -210,10 +210,37 @@ const Landing = () => {
                   </div>
                 </div>
               </div>
-              <div className="relative aspect-square glass-panel rounded-3xl border border-white/10 overflow-hidden flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
-                <span className="material-symbols-outlined text-[120px] text-white/10" style={{fontVariationSettings: "'wght' 100"}}>hub</span>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 border border-white/5 rounded-full animate-pulse-slow"></div>
+              <div className="relative aspect-[4/5] glass-panel rounded-3xl border border-white/10 overflow-hidden group shadow-2xl shadow-primary/10">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-tertiary"></div>
+                <div className="p-4 bg-surface-container/50 border-b border-white/5 flex items-center justify-between">
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
+                    <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
+                    <div className="w-2 h-2 rounded-full bg-emerald-500/50"></div>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">blueprint_v1.0.pdf</span>
+                </div>
+                <div className="relative h-full overflow-hidden">
+                  <img 
+                    src="/showcase/solutions.png" 
+                    alt="Technical Blueprint Solution" 
+                    className="w-full h-auto object-cover opacity-90 transition-transform duration-1000 group-hover:scale-110" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                  
+                  {/* Floating Analytics Badge */}
+                  <div className="absolute bottom-8 right-8 p-4 glass-panel border border-white/10 rounded-2xl animate-bounce-slow">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-primary text-xl">verified</span>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-white uppercase tracking-widest">Confidence</p>
+                        <p className="text-lg font-headline font-black text-primary">80%</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
