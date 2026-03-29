@@ -1,6 +1,6 @@
 import { useLocation, Navigate, useOutletContext } from 'react-router-dom';
-import { useState } from 'react';
-import { saveStack, type AnalysisResult } from '../services/api';
+import { useState, useEffect } from 'react';
+import { saveStack, fetchSavedStacks, type AnalysisResult } from '../services/api';
 import RadialOrbitalTimeline from '@/components/ui/radial-orbital-timeline';
 import { Route, PlayCircle } from 'lucide-react';
 import TechIcon from '@/components/ui/tech-icon';
@@ -12,12 +12,35 @@ const Recommendations = () => {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const { onDeploy } = useOutletContext<{ onDeploy: (name: string) => void }>();
 
+  // Persistent Save status check on mount
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      const localSession = localStorage.getItem("vibe_session");
+      if (!localSession || !result.project_title) return;
+      
+      const user = JSON.parse(localSession).user;
+      try {
+        const savedStacks = await fetchSavedStacks(user.name);
+        const alreadySaved = savedStacks.some((s: any) => s.name === result.project_title);
+        if (alreadySaved) {
+            setSaveStatus('success');
+        }
+      } catch (err) {
+        console.error("Failed to fetch saved status:", err);
+      }
+    };
+
+    checkSavedStatus();
+  }, [result.project_title]);
+
   // If no result is present, redirect to dashboard
   if (!result) {
     return <Navigate to="/architecture" replace />;
   }
 
   const handleSaveStack = async () => {
+    if (saveStatus === 'success') return; // Prevent duplicate saves
+
     const localSession = localStorage.getItem("vibe_session");
     if (!localSession) return;
     
@@ -41,9 +64,10 @@ const Recommendations = () => {
     } catch (err) {
       console.error(err);
       setSaveStatus('error');
+      // Reset only on error, success should persist
+      setTimeout(() => setSaveStatus('idle'), 2000);
     } finally {
       setIsSaving(false);
-      setTimeout(() => setSaveStatus('idle'), 3000);
     }
   };
 
