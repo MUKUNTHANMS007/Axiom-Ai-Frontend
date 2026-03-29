@@ -4,6 +4,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { fetchHistory, type HistoryItem, type AnalysisResult } from '@/services/api';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 import { FileDown, CheckCircle2, AlertCircle, FileText, Layout, X, Loader2 } from 'lucide-react';
 
 interface BlueprintExporterProps {
@@ -18,89 +19,92 @@ export const BlueprintExporter: React.FC<BlueprintExporterProps> = ({ isOpen, on
   const [selectedProject, setSelectedProject] = useState<HistoryItem | null>(null);
   const [exportMode, setExportMode] = useState<'full' | 'summary'>('full');
 
-  useEffect(() => {
-    if (isOpen) {
-      const loadHistory = async () => {
-        setLoading(true);
-        try {
-          const localSession = localStorage.getItem("vibe_session");
-          if (!localSession) return;
-          const user = JSON.parse(localSession).user;
-          const data = await fetchHistory(user.name);
-          setHistory(data);
-          
-          // Auto-select current project if name matches
-          if (projectName) {
-            const current = data.find(h => h.name === projectName);
-            if (current) setSelectedProject(current);
-          }
-        } catch (err) {
-          console.error("Failed to load history:", err);
-        } finally {
-          setLoading(false);
+      useEffect(() => {
+        if (isOpen) {
+          const loadHistory = async () => {
+            setLoading(true);
+            try {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (!user) return;
+              
+              const data = await fetchHistory(user.id);
+              setHistory(data);
+              
+              // Auto-select current project if name matches
+              if (projectName) {
+                const current = data.find(h => h.name === projectName);
+                if (current) setSelectedProject(current);
+              }
+            } catch (err) {
+              console.error("Failed to load history:", err);
+            } finally {
+              setLoading(false);
+            }
+          };
+          loadHistory();
         }
-      };
-      loadHistory();
-    }
-  }, [isOpen, projectName]);
+      }, [isOpen, projectName]);
 
-  const generatePDF = () => {
-    if (!selectedProject || !selectedProject.result_json) return;
+      const generatePDF = () => {
+        if (!selectedProject || !selectedProject.result_json) return;
 
-    try {
-      const doc = new jsPDF() as any;
-      const res = selectedProject.result_json as AnalysisResult;
-      const timestamp = new Date().toLocaleDateString();
+        try {
+          const doc = new jsPDF() as any;
+          const res = selectedProject.result_json as AnalysisResult;
+          const timestamp = new Date().toLocaleDateString();
 
-      // -- Header --
-      doc.setFillColor(15, 15, 15);
-      doc.rect(0, 0, 210, 40, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      doc.setFont("helvetica", "bold");
-      doc.text((res.project_title || "SYSTME ARCHITECTURE").toUpperCase(), 15, 25);
-      
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text(`ARCHITECTURAL BLUEPRINT v1.0 | ${timestamp}`, 15, 32);
-      
-      doc.setDrawColor(124, 58, 237); // Primary color
-      doc.setLineWidth(1);
-      doc.line(15, 35, 60, 35);
+          // -- Header --
+          doc.setFillColor(15, 15, 15);
+          doc.rect(0, 0, 210, 40, 'F');
+          
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(22);
+          doc.setFont("helvetica", "bold");
+          doc.text((res.project_title || "SYSTME ARCHITECTURE").toUpperCase(), 15, 25);
+          
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.text(`ARCHITECTURAL BLUEPRINT v1.0 | ${timestamp}`, 15, 32);
+          
+          doc.setDrawColor(124, 58, 237); // Primary color
+          doc.setLineWidth(1);
+          doc.line(15, 35, 60, 35);
 
-      let y = 50;
+          let y = 50;
 
-      // -- Executive Summary --
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text("EXECUTIVE SUMMARY", 15, y);
-      y += 8;
-      
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      const summaryLines = doc.splitTextToSize(res.project_summary || "No summary provided.", 180);
-      doc.text(summaryLines, 15, y);
-      y += (summaryLines.length * 5) + 10;
+          // -- Executive Summary --
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(14);
+          doc.setFont("helvetica", "bold");
+          doc.text("EXECUTIVE SYNTHESIS", 15, y);
+          y += 8;
+          
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          
+          // Fix repetition: Ensure summary is unique from title
+          const summaryText = res.project_summary || "Architectural analysis pending formal verification.";
+          const summaryLines = doc.splitTextToSize(summaryText, 180);
+          doc.text(summaryLines, 15, y);
+          y += (summaryLines.length * 5) + 10;
 
-      // Stats Table
-      autoTable(doc, {
-        startY: y,
-        head: [['Metric', 'Value']],
-        body: [
-          ['Confidence Score', `${res.confidence_score || 0}%`],
-          ['Complexity', res.complexity || 'Unknown'],
-          ['Estimated Timeline', res.estimated_timeline || 'N/A'],
-        ],
-        theme: 'striped',
-        headStyles: { fillColor: [124, 58, 237] },
-        margin: { left: 15 }
-      });
-      
-      y = (doc as any).lastAutoTable.finalY + 15;
+          // Stats Table
+          autoTable(doc, {
+            startY: y,
+            head: [['Technical Descriptor', 'Evaluation']],
+            body: [
+              ['Confidence Index', `${res.confidence_score || 0}%`],
+              ['Architectural Complexity', res.complexity || 'Standard'],
+              ['Operational Timeline', res.estimated_timeline || 'TBD'],
+            ],
+            theme: 'striped',
+            headStyles: { fillColor: [124, 58, 237] },
+            margin: { left: 15 }
+          });
+          
+          y = (doc as any).lastAutoTable.finalY + 15;
 
-      if (exportMode === 'full') {
+          if (exportMode === 'full') {
         // -- Technical Stack --
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");

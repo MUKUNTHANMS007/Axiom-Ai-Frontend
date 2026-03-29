@@ -227,7 +227,10 @@ const Profile = () => {
                         >
                             <Card className="glass-card p-6 border-border/10 rounded-[2rem]">
                                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-6">Access Layer</h3>
-                                <button className="w-full h-12 rounded-xl bg-muted border border-border flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                                <button 
+                                    onClick={() => window.location.href = `mailto:${user['Email'] || 'mukunthan@axiom.ai'}?subject=Architectural Collaboration: ${user['User Name']}`}
+                                    className="w-full h-12 rounded-xl bg-muted border border-border flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                                >
                                     <Mail className="w-4 h-4" /> Open Comms Channel
                                 </button>
                             </Card>

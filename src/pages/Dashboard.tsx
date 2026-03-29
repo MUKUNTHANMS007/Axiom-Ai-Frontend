@@ -145,13 +145,13 @@ const Dashboard = () => {
                     <span className="material-symbols-outlined text-secondary" data-icon="groups">groups</span>
                     <span className="text-[10px] font-bold text-white uppercase tracking-widest">Team</span>
                  </button>
-                 <button 
-                   onClick={() => navigate('/settings')}
-                   className="p-4 bg-surface-container-high rounded-2xl border border-white/5 hover:border-tertiary transition-all text-center flex flex-col items-center gap-2"
-                 >
-                    <span className="material-symbols-outlined text-tertiary" data-icon="settings">settings</span>
-                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">Settings</span>
-                 </button>
+                  <button 
+                    onClick={() => navigate('/tasks')}
+                    className="p-4 bg-surface-container-high rounded-2xl border border-white/5 hover:border-accent transition-all text-center flex flex-col items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-accent" data-icon="task">task</span>
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">System Tasks</span>
+                  </button>
               </div>
 
               {/* Activity Feed Snippet */}

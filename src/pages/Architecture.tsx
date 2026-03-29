@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { analyzeProject, fetchHistory, createProject, createTask, assignTask, type HistoryItem } from '../services/api';
+import { supabase } from '@/lib/supabase';
 import { PromptInputBox } from '@/components/ai-prompt-box';
 import { BeamsBackground } from '@/components/ui/beams-background';
 import { motion } from 'framer-motion';
@@ -103,66 +104,71 @@ const Architecture = () => {
 
   const handleAddToProjects = async () => {
     if (!selectedProject || !selectedProject.result_json) return;
-    const user = getUser();
-    if (!user) return;
-
-    // Helper to ensure the AI's returned name exactly matches a valid team member
-    const sanitizeName = (returnedName: string, allowedProfiles: any[]) => {
-      const cleanTarget = (returnedName || "").split('(')[0].split('/')[0].trim().toLowerCase();
-      const match = allowedProfiles.find(p => p.name.trim().toLowerCase() === cleanTarget);
-      return match ? match.name : user.name; // Fallback to current user if hallucinations occur
-    };
-
+    
     setAddingToProjects(true);
     setAddStatus("Initializing architecture deployment...");
+    setError(null);
     
     try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        navigate('/login');
+        return;
+      }
+
+      const user_id = authUser.id;
+      const user_name = authUser.user_metadata?.username || authUser.email?.split('@')[0] || 'Architect';
+
       // 1. Create the project
       const project = await createProject(
         selectedProject.result_json.project_title,
         selectedProject.result_json.project_summary,
-        user.name
+        user_id // Use UUID
       );
 
       setAddStatus(`Project "${project.name}" created. Syncing AI roadmap...`);
 
-      // 2. Fetch team members (simplified for this context)
-      // Usually would fetch from project, but here we can assume some default profiles or fetch from existing project members
+      // 2. Fetch team members (simplified)
       const teamProfiles = [
-        { name: user.name, role: 'Lead Architect', skills: ['Architecture', 'Strategy', 'TypeScript'] },
-        { name: 'AI Assistant', role: 'Strategic Implementation', skills: ['Drafting', 'Backend', 'Ops'] }
+        { name: user_name, role: 'Lead Architect', skills: ['Architecture', 'Strategy'] },
+        { name: 'AI System', role: 'Technical Advisor', skills: ['Optimisation', 'Security'] }
       ];
 
       // 3. Process roadmap tasks
       const roadmap = selectedProject.result_json.mvp_roadmap || [];
       for (let i = 0; i < roadmap.length; i++) {
         const taskText = roadmap[i];
-        setAddStatus(`AI Assigning: ${taskText.split(':')[0]}...`);
+        const stepTitle = taskText.split(':')[0] || `Phase ${i+1}`;
+        setAddStatus(`Neural Dispatch: ${stepTitle}...`);
         
-        // AI Assignment
-        const result = await assignTask(taskText, teamProfiles);
-        
-        // Create Persistent Task
-        await createTask({
-          project_id: project.id,
-          title: taskText.split(':')[0] || `Phase ${i+1}`,
-          description: taskText,
-          assigned_to: sanitizeName(result.assigned_to, teamProfiles),
-          assigned_by: user.name,
-          priority: i === 0 ? 'High' : 'Medium',
-          ai_confidence: result.confidence,
-          ai_rationale: result.rationale,
-          estimated_effort: result.estimated_effort
-        });
+        try {
+          // AI Assignment
+          const result = await assignTask(taskText, teamProfiles);
+          
+          // Create Persistent Task
+          await createTask({
+            project_id: project.id,
+            title: stepTitle,
+            description: taskText.includes(':') ? taskText.split(':').slice(1).join(':').trim() : taskText,
+            assigned_to: result.assigned_to === user_name ? user_id : result.assigned_to, // Map back to ID if it chooses current user
+            assigned_by: user_id,
+            priority: i === 0 ? 'high' : 'medium',
+            ai_confidence: result.confidence,
+            ai_rationale: result.rationale,
+            estimated_effort: result.estimated_effort
+          });
+        } catch (taskErr) {
+          console.error("Task initialization failed for step:", stepTitle, taskErr);
+        }
       }
 
-      setAddStatus("All systems operational. Redirecting to projects...");
+      setAddStatus("Deployment success. Syncing workspace...");
       setTimeout(() => {
         navigate('/my-projects');
-      }, 2000);
+      }, 1500);
     } catch (err: any) {
       console.error(err);
-      setError("Failed to export synthesis to projects.");
+      setError("Critical: Failed to deploy architecture to project workspace.");
       setAddingToProjects(false);
     }
   };

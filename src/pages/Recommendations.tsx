@@ -110,74 +110,65 @@ const Recommendations = () => {
               <span className="material-symbols-outlined text-primary" data-icon="code">code</span>
               <h2 className="font-headline text-xl font-bold tracking-tight text-white uppercase tracking-widest text-sm">Recommended Ecosystem</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.languages?.map((lang: any, i) => (
-                <div key={i} className="glass-panel p-6 rounded-xl hover:bg-white/5 transition-colors border border-white/5 flex flex-col">
-                  <div className="flex justify-between items-start mb-4">
-                    <TechIcon slug={lang.icon} name={lang.name} size={32} />
-                    <span className="bg-primary/10 text-primary-fixed text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">
-                       {lang.type || 'Language'}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{lang.name}</h3>
-                  <p className="text-on-surface-variant text-sm leading-relaxed mb-4">{lang.reason}</p>
-                  
-                  {lang.detailed_reasoning && lang.detailed_reasoning.length > 0 && (
-                    <ul className="space-y-2 mb-6">
-                      {lang.detailed_reasoning.map((point: string, j: number) => (
-                        <li key={j} className="text-[11px] text-slate-400 flex items-start gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1 flex-shrink-0" />
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  
-                  <div className="flex flex-wrap gap-2 items-center justify-between mt-auto pt-4 border-t border-white/5">
-                    <div className="flex gap-2">
-                      <span className="bg-surface-container-lowest text-slate-400 text-[11px] px-2 py-1 rounded border border-white/5">{lang.use_case}</span>
-                      <span className="bg-surface-container-lowest text-primary-fixed text-[11px] px-2 py-1 rounded border border-primary/20 font-bold">{lang.match}% Match</span>
-                    </div>
-                    {lang.docs_url && (
-                      <a href={lang.docs_url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-primary hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest group/link">
-                        Docs <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" data-icon="open_in_new">open_in_new</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-              {result.frameworks?.map((fw: any, i) => (
-                <div key={i} className="glass-panel p-6 rounded-xl hover:bg-white/5 transition-colors border border-white/5 flex flex-col">
-                  <div className="flex justify-between items-start mb-4">
-                    <TechIcon slug={fw.icon} name={fw.name} size={32} />
-                    <span className="bg-tertiary/10 text-tertiary-fixed text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">
-                       {fw.category}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{fw.name}</h3>
-                  <p className="text-on-surface-variant text-sm leading-relaxed mb-4">{fw.reason}</p>
-
-                  {fw.detailed_reasoning && fw.detailed_reasoning.length > 0 && (
-                    <ul className="space-y-2 mb-6">
-                      {fw.detailed_reasoning.map((point: string, j: number) => (
-                        <li key={j} className="text-[11px] text-slate-400 flex items-start gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-tertiary mt-1 flex-shrink-0" />
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  <div className="flex flex-wrap gap-2 items-center justify-between mt-auto pt-4 border-t border-white/5">
-                    <div className="flex gap-2">
-                      <span className="bg-surface-container-lowest text-slate-400 text-[11px] px-2 py-1 rounded border border-white/5">Curve: {fw.learning_curve}</span>
-                      <span className="bg-surface-container-lowest text-tertiary-fixed text-[11px] px-2 py-1 rounded border border-tertiary/20 font-bold">{fw.match}% Match</span>
-                    </div>
-                    {fw.docs_url && (
-                      <a href={fw.docs_url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-tertiary hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest group/link">
-                        Specs <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" data-icon="open_in_new">open_in_new</span>
-                      </a>
-                    )}
+            <div className="space-y-12">
+              {/* Grouping Logic: Categorize based on type/category */}
+              {[
+                { label: 'Architectural Core', items: result.languages?.map(l => ({ ...l, type: 'CORE' })) || [] },
+                { label: 'Client-Side Frameworks', items: result.frameworks?.filter(f => f.category.toLowerCase().includes('front') || f.category.toLowerCase().includes('client')) || [] },
+                { label: 'Server-Side & API', items: result.frameworks?.filter(f => f.category.toLowerCase().includes('back') || f.category.toLowerCase().includes('server') || f.category.toLowerCase().includes('api')) || [] },
+                { label: 'Data & Persistence', items: result.frameworks?.filter(f => f.category.toLowerCase().includes('database') || f.category.toLowerCase().includes('storage') || f.category.toLowerCase().includes('data')) || [] },
+                { label: 'DevOps & Utility', items: result.frameworks?.filter(f => !['front', 'client', 'back', 'server', 'api', 'database', 'storage', 'data'].some(k => f.category.toLowerCase().includes(k))) || [] }
+              ].filter(group => group.items.length > 0).map((group, idx) => (
+                <div key={idx} className="space-y-6">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 border-l-2 border-primary/20 pl-4">
+                    {group.label}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {group.items.map((item: any, i) => (
+                      <div key={i} className="glass-panel p-6 rounded-xl hover:bg-white/5 transition-colors border border-white/5 flex flex-col">
+                        <div className="flex justify-between items-start mb-4">
+                          <TechIcon slug={item.icon} name={item.name} size={32} />
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest ${
+                            item.type === 'CORE' ? 'bg-primary/10 text-primary-fixed' : 'bg-tertiary/10 text-tertiary-fixed'
+                          }`}>
+                             {item.type || item.category || 'Tech'}
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">{item.name}</h3>
+                        <p className="text-on-surface-variant text-sm leading-relaxed mb-4">{item.reason}</p>
+                        
+                        {item.detailed_reasoning && item.detailed_reasoning.length > 0 && (
+                          <ul className="space-y-2 mb-6">
+                            {item.detailed_reasoning.slice(0, 3).map((point: string, j: number) => (
+                              <li key={j} className="text-[11px] text-slate-400 flex items-start gap-2">
+                                <span className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${item.type === 'CORE' ? 'bg-primary' : 'bg-tertiary'}`} />
+                                {point}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        
+                        <div className="flex flex-wrap gap-2 items-center justify-between mt-auto pt-4 border-t border-white/5">
+                          <div className="flex gap-2">
+                            <span className="bg-surface-container-lowest text-slate-400 text-[11px] px-2 py-1 rounded border border-white/5">
+                              {item.use_case || `Curve: ${item.learning_curve}`}
+                            </span>
+                            <span className={`bg-surface-container-lowest text-[11px] px-2 py-1 rounded border font-bold ${
+                              item.type === 'CORE' ? 'text-primary-fixed border-primary/20' : 'text-tertiary-fixed border-tertiary/20'
+                            }`}>
+                              {item.match}% Match
+                            </span>
+                          </div>
+                          {item.docs_url && (
+                            <a href={item.docs_url} target="_blank" rel="noopener noreferrer" className={`text-[10px] font-bold transition-colors flex items-center gap-1 uppercase tracking-widest group/link ${
+                              item.type === 'CORE' ? 'text-primary hover:text-white' : 'text-tertiary hover:text-white'
+                            }`}>
+                              Specs <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" data-icon="open_in_new">open_in_new</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -319,17 +310,23 @@ const Recommendations = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-8">
               <RadialOrbitalTimeline timelineData={
-                result.mvp_roadmap.map((step: string, index: number, arr: string[]) => ({
-                  id: index + 1,
-                  title: step.split(':')[0] || `Phase ${index + 1}`,
-                  date: `Phase ${index + 1}`,
-                  content: step.includes(':') ? step.split(':')[1].trim() : step,
-                  category: "Roadmap",
-                  icon: index === 0 ? PlayCircle : Route,
-                  relatedIds: index < arr.length - 1 ? [index + 2] : [],
-                  status: index === 0 ? "in-progress" : "pending",
-                  energy: Math.max(20, 100 - (index * 20))
-                }))
+                result.mvp_roadmap.map((step: string, index: number, arr: string[]) => {
+                  const parts = step.split(':');
+                  const title = parts.length > 1 ? parts[0].trim() : `Phase ${index + 1}`;
+                  const content = parts.length > 1 ? parts.slice(1).join(':').trim() : step;
+                  
+                  return {
+                    id: index + 1,
+                    title: title,
+                    date: `Deployment Phase ${index + 1}`,
+                    content: content,
+                    category: "Engineering Roadmap",
+                    icon: index === 0 ? PlayCircle : Route,
+                    relatedIds: index < arr.length - 1 ? [index + 2] : [],
+                    status: index === 0 ? "in-progress" : "pending",
+                    energy: Math.max(20, 100 - (index * 15))
+                  };
+                })
               } />
             </div>
             

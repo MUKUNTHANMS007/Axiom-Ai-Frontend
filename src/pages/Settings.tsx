@@ -505,8 +505,8 @@ const Settings = () => {
                                             </div>
 
                                             <div className="bg-destructive/5 border border-destructive/20 p-6 rounded-3xl space-y-4">
-                                                <h3 className="text-destructive font-bold text-sm uppercase tracking-widest">Protocol Override</h3>
-                                                <p className="text-xs text-muted-foreground">Warning: Terminating current session will decrypt active environment keys from local memory.</p>
+                                                <h3 className="text-destructive font-bold text-sm uppercase tracking-widest">Advanced Project Governance</h3>
+                                                <p className="text-xs text-muted-foreground">Warning: Terminating current session will restrict access to all active engineering environments.</p>
                                                 <Button 
                                                     onClick={handleLogout}
                                                     className="bg-destructive hover:bg-destructive/90 text-white font-black uppercase text-xs tracking-widest rounded-xl px-8 h-12 flex items-center gap-2"

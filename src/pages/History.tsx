@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchHistory, type HistoryItem } from '../services/api';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 
 const History = () => {
   const [explorations, setExplorations] = useState<HistoryItem[]>([]);
@@ -14,9 +15,8 @@ const History = () => {
   useEffect(() => {
     async function getHistory() {
       try {
-        const localSession = localStorage.getItem("vibe_session");
-        const user = localSession ? JSON.parse(localSession).user : null;
-        const user_id = user?.name || user?.id;
+        const { data: { user } } = await supabase.auth.getUser();
+        const user_id = user?.id; // Use official Supabase ID
         
         const data = await fetchHistory(user_id);
         setExplorations(data);
