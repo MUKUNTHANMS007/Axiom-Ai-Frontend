@@ -219,41 +219,6 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section id="pricing" className="py-32 px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-20 text-center">
-              <h2 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white uppercase italic">Subscription Tiers</h2>
-              <p className="text-on-surface-variant text-lg font-mono tracking-tighter uppercase opacity-60">Access superior engineering intelligence.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { name: 'Architect', price: 'Free', features: ['3 Project Syntheses', 'Core Framework Matching', 'Standard Export'] },
-                { name: 'Engineer', price: '$49', features: ['Unlimited Syntheses', 'Advanced Telemetry', 'Priority AI Models', 'PDF Blueprint Export'] },
-                { name: 'Enterprise', price: 'Custom', features: ['Team Workspace Sync', 'White-labeled Reporting', 'Dedicated LLM Nodes', 'SSO Integration'] }
-              ].map((tier, i) => (
-                <div key={i} className={`p-10 rounded-3xl border ${i === 1 ? 'bg-primary/5 border-primary/30 shadow-2xl shadow-primary/10' : 'bg-surface-container border-white/5'} flex flex-col`}>
-                  <h4 className="font-black uppercase tracking-[0.3em] text-[10px] text-primary mb-6">{tier.name}</h4>
-                  <div className="flex items-baseline gap-1 mb-10">
-                    <span className="text-5xl font-headline font-black text-white">{tier.price}</span>
-                    {tier.price.startsWith('$') && <span className="text-on-surface-variant font-bold">/mo</span>}
-                  </div>
-                  <ul className="space-y-4 mb-12 flex-grow">
-                    {tier.features.map((f, j) => (
-                      <li key={j} className="flex items-center gap-3 text-sm text-on-surface/80">
-                        <span className="material-symbols-outlined text-primary text-sm">check_circle</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${i === 1 ? 'bg-primary text-white shadow-lg' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'}`}>
-                    Choose {tier.name}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* About Section */}
         <section id="about" className="py-32 px-6 mb-32">
@@ -284,13 +249,84 @@ const Landing = () => {
         <section className="py-32 bg-surface-container-lowest border-y border-outline-variant/10 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10" style={{backgroundImage: "radial-gradient(#b6a0ff 1px, transparent 1px)", backgroundSize: "32px 32px"}}></div>
           <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-            <h2 className="font-headline text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter text-white uppercase italic">Ready to Deploy Your Legacy?</h2>
-            <p className="text-on-surface-variant text-xl mb-12 font-mono uppercase tracking-tighter opacity-60">Join 4,000+ founders using Axiom AI to build the next generation of digital infrastructure.</p>
-            <Link to="/signup" className="px-12 py-6 bg-white text-black rounded-md font-label font-extrabold uppercase tracking-widest hover:bg-primary transition-all hover:text-white shadow-xl">
+            <h2 className="font-headline text-4xl md:text-6xl font-black mb-8 tracking-tighter text-white uppercase italic">Synthesize Your Infrastructure</h2>
+            <p className="text-on-surface-variant text-xl mb-12 font-mono uppercase tracking-tighter opacity-60">Deploy the next generation of digital platforms on the Axiom-JS Aether Engine.</p>
+            <Link to="/signup" className="px-12 py-6 bg-white text-black rounded-md font-label font-extrabold uppercase tracking-widest hover:bg-primary transition-all hover:text-white shadow-xl inline-block">
               Get Beta Access
             </Link>
           </div>
         </section>
+
+        {/* Formal Architectural Footer */}
+        <footer className="py-24 px-6 bg-background border-t border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-24">
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Platform</h4>
+                <ul className="space-y-3">
+                  {['Dashboard', 'Architecture', 'Team Stack', 'Workflow'].map((item) => (
+                    <li key={item}>
+                      <a href="#" className="text-on-surface-variant text-sm hover:text-white transition-colors">{item}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary">Resources</h4>
+                <ul className="space-y-3">
+                  {['Documentation', 'API Reference', 'Node-JS', 'Security'].map((item) => (
+                    <li key={item}>
+                      <a href="#" className="text-on-surface-variant text-sm hover:text-white transition-colors">{item}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-tertiary">Engine</h4>
+                <ul className="space-y-3">
+                  {['Manifesto', 'Safety', 'Status', 'Open Source'].map((item) => (
+                    <li key={item}>
+                      <a href="#" className="text-on-surface-variant text-sm hover:text-white transition-colors">{item}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Legal</h4>
+                <ul className="space-y-3">
+                  {['Privacy', 'Terms', 'Compliance', 'Ethics'].map((item) => (
+                    <li key={item}>
+                      <a href="#" className="text-on-surface-variant text-sm hover:text-white transition-colors">{item}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+              <div className="flex items-center gap-4">
+                <span className="text-white">Axiom AI</span>
+                <span className="opacity-30">|</span>
+                <span>The Architectural OS</span>
+              </div>
+              
+              <div className="flex items-center gap-8">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                  <span>Engine: v4.0.2</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                  <span>Status: 99.9% Uptime</span>
+                </div>
+              </div>
+
+              <div className="opacity-40 italic">
+                &copy; 2026 Axiom-JS Neural Corridors.
+              </div>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   );
