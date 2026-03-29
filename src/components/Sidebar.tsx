@@ -86,7 +86,7 @@ const Sidebar = ({ onDeploy, isOpen, onClose }: SidebarProps) => {
           onClick={onDeploy}
           className="mb-4 w-full py-2.5 px-4 bg-primary text-on-primary-container font-label text-xs font-bold uppercase tracking-widest rounded-md hover:bg-primary-fixed transition-all duration-300"
         >
-          Deploy Stack
+          Export Blueprint
         </button>
         <Link
           to="/settings"

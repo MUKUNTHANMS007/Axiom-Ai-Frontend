@@ -3,29 +3,29 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import BottomNavBar from './BottomNavBar';
-import { DeploymentOrchestrator } from './deployment-orchestrator';
+import { BlueprintExporter } from './blueprint-exporter';
 
 const Layout = () => {
-  const [isDeploying, setIsDeploying] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [activeProject, setActiveProject] = useState("Technical OS v4.0");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const triggerDeployment = (projectName?: string) => {
+  const triggerExport = (projectName?: string) => {
     if (projectName) setActiveProject(projectName);
-    setIsDeploying(true);
+    setIsExporting(true);
   };
 
   return (
     <div className="min-h-screen bg-background text-on-surface font-body overflow-x-hidden">
       <Sidebar 
-        onDeploy={() => triggerDeployment()} 
+        onDeploy={() => triggerExport()} 
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
       <main className="lg:ml-64 min-h-screen relative flex flex-col transition-all duration-300">
         <TopBar onToggleSidebar={() => setIsSidebarOpen(true)} />
         <div className="flex-1 pt-16">
-          <Outlet context={{ onDeploy: triggerDeployment }} />
+          <Outlet context={{ onDeploy: triggerExport }} />
         </div>
         {/* Padding for BottomNavBar on mobile */}
         <div className="h-20 lg:hidden" />
@@ -33,9 +33,9 @@ const Layout = () => {
 
       <BottomNavBar />
 
-      <DeploymentOrchestrator 
-        isOpen={isDeploying} 
-        onClose={() => setIsDeploying(false)} 
+      <BlueprintExporter 
+        isOpen={isExporting} 
+        onClose={() => setIsExporting(false)} 
         projectName={activeProject}
       />
     </div>

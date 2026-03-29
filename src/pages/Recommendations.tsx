@@ -386,7 +386,7 @@ const Recommendations = () => {
                   onClick={() => onDeploy(result.project_title)}
                   className="w-full py-4 bg-white text-black rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95 px-4"
                 >
-                  Deploy Synthesis v1.0
+                  Export Analysis v1.0
                 </button>
               </div>
             )}
