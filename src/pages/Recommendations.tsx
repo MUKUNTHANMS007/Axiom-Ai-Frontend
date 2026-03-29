@@ -87,55 +87,71 @@ const Recommendations = () => {
               <h2 className="font-headline text-xl font-bold tracking-tight text-white uppercase tracking-widest text-sm">Recommended Ecosystem</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.languages?.map((lang, i) => (
-                <div key={i} className="glass-panel p-6 rounded-xl hover:bg-white/5 transition-colors border border-white/5">
+              {result.languages?.map((lang: any, i) => (
+                <div key={i} className="glass-panel p-6 rounded-xl hover:bg-white/5 transition-colors border border-white/5 flex flex-col">
                   <div className="flex justify-between items-start mb-4">
                     <TechIcon slug={lang.icon} name={lang.name} size={32} />
-                    <span className="bg-primary/10 text-primary-fixed text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Language</span>
+                    <span className="bg-primary/10 text-primary-fixed text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">
+                       {lang.type || 'Language'}
+                    </span>
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">{lang.name}</h3>
                   <p className="text-on-surface-variant text-sm leading-relaxed mb-4">{lang.reason}</p>
-                  <div className="flex flex-wrap gap-2 items-center justify-between mt-auto">
+                  
+                  {lang.detailed_reasoning && lang.detailed_reasoning.length > 0 && (
+                    <ul className="space-y-2 mb-6">
+                      {lang.detailed_reasoning.map((point: string, j: number) => (
+                        <li key={j} className="text-[11px] text-slate-400 flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1 flex-shrink-0" />
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  
+                  <div className="flex flex-wrap gap-2 items-center justify-between mt-auto pt-4 border-t border-white/5">
                     <div className="flex gap-2">
                       <span className="bg-surface-container-lowest text-slate-400 text-[11px] px-2 py-1 rounded border border-white/5">{lang.use_case}</span>
                       <span className="bg-surface-container-lowest text-primary-fixed text-[11px] px-2 py-1 rounded border border-primary/20 font-bold">{lang.match}% Match</span>
                     </div>
                     {lang.docs_url && (
-                      <a 
-                        href={lang.docs_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-[10px] font-bold text-primary hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest group/link"
-                      >
-                        Docs
-                        <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" data-icon="open_in_new">open_in_new</span>
+                      <a href={lang.docs_url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-primary hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest group/link">
+                        Docs <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" data-icon="open_in_new">open_in_new</span>
                       </a>
                     )}
                   </div>
                 </div>
               ))}
-              {result.frameworks?.map((fw, i) => (
-                <div key={i} className="glass-panel p-6 rounded-xl hover:bg-white/5 transition-colors border border-white/5">
+              {result.frameworks?.map((fw: any, i) => (
+                <div key={i} className="glass-panel p-6 rounded-xl hover:bg-white/5 transition-colors border border-white/5 flex flex-col">
                   <div className="flex justify-between items-start mb-4">
                     <TechIcon slug={fw.icon} name={fw.name} size={32} />
-                    <span className="bg-tertiary/10 text-tertiary-fixed text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">{fw.category}</span>
+                    <span className="bg-tertiary/10 text-tertiary-fixed text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">
+                       {fw.category}
+                    </span>
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">{fw.name}</h3>
                   <p className="text-on-surface-variant text-sm leading-relaxed mb-4">{fw.reason}</p>
-                  <div className="flex flex-wrap gap-2 items-center justify-between mt-auto">
+
+                  {fw.detailed_reasoning && fw.detailed_reasoning.length > 0 && (
+                    <ul className="space-y-2 mb-6">
+                      {fw.detailed_reasoning.map((point: string, j: number) => (
+                        <li key={j} className="text-[11px] text-slate-400 flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-tertiary mt-1 flex-shrink-0" />
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="flex flex-wrap gap-2 items-center justify-between mt-auto pt-4 border-t border-white/5">
                     <div className="flex gap-2">
-                      <span className="bg-surface-container-lowest text-slate-400 text-[11px] px-2 py-1 rounded border border-white/5">UI: {fw.learning_curve}</span>
+                      <span className="bg-surface-container-lowest text-slate-400 text-[11px] px-2 py-1 rounded border border-white/5">Curve: {fw.learning_curve}</span>
                       <span className="bg-surface-container-lowest text-tertiary-fixed text-[11px] px-2 py-1 rounded border border-tertiary/20 font-bold">{fw.match}% Match</span>
                     </div>
                     {fw.docs_url && (
-                      <a 
-                        href={fw.docs_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-[10px] font-bold text-tertiary hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest group/link"
-                      >
-                        Specs
-                        <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" data-icon="open_in_new">open_in_new</span>
+                      <a href={fw.docs_url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-tertiary hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest group/link">
+                        Specs <span className="material-symbols-outlined text-[14px] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" data-icon="open_in_new">open_in_new</span>
                       </a>
                     )}
                   </div>
@@ -147,36 +163,65 @@ const Recommendations = () => {
           {/* Architecture Insights */}
           <div className="bg-surface-container-high p-8 rounded-xl relative overflow-hidden border border-white/5">
             <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-gradient-to-b from-primary to-tertiary"></div>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-8">
               <span className="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
               <h2 className="font-headline text-lg font-bold text-white tracking-tight uppercase tracking-widest text-xs">The Architecture Vibe</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h4 className="text-primary-fixed text-sm font-bold mb-3">Key Paradigm</h4>
-                {result.architecture_patterns?.filter(p => p.recommended).map((p, i) => (
-                  <div key={i} className="mb-4">
-                    <p className="text-white font-bold text-lg mb-2">{p.name}</p>
-                    <ul className="space-y-1">
-                      {p.pros.map((pro: string, j: number) => (
-                        <li key={j} className="text-xs text-on-surface-variant flex items-center gap-2">
-                          <span className="w-1 h-1 rounded-full bg-primary"></span> {pro}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-4">
-                <h4 className="text-tertiary-fixed text-sm font-bold">Risk Analysis</h4>
-                <div className="flex flex-wrap gap-2">
-                  {result.potential_risks?.map((risk, i) => (
-                    <span key={i} className="bg-error/10 text-error-container text-[11px] px-3 py-1.5 rounded-full border border-error/20">
-                      {risk}
-                    </span>
+            
+            <div className="space-y-10">
+              <section>
+                <h4 className="text-primary-fixed text-sm font-bold mb-4 flex items-center gap-2">
+                   <span className="material-symbols-outlined text-sm" data-icon="account_tree">account_tree</span>
+                   Key Paradigm
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {result.architecture_patterns?.filter(p => p.recommended).map((p, i) => (
+                    <div key={i} className="bg-black/20 p-4 rounded-xl border border-white/5">
+                      <p className="text-white font-bold text-lg mb-3">{p.name}</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[10px] uppercase font-black text-emerald-500 mb-2">Architectural Pros</p>
+                          <ul className="space-y-1 text-xs text-on-surface-variant">
+                             {p.pros.map((pro: string, j: number) => <li key={j} className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-emerald-500"></span>{pro}</li>)}
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase font-black text-amber-500 mb-2">Trade-offs</p>
+                          <ul className="space-y-1 text-xs text-on-surface-variant">
+                             {p.cons.map((con: string, j: number) => <li key={j} className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-amber-500"></span>{con}</li>)}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </div>
+              </section>
+
+              <section>
+                <h4 className="text-error-container text-sm font-bold mb-4 flex items-center gap-2">
+                   <span className="material-symbols-outlined text-sm" data-icon="warning">warning</span>
+                   Risk Analysis & Mitigation
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {result.potential_risks?.map((risk: any, i) => (
+                    <div key={i} className="bg-error/5 p-4 rounded-xl border border-error/10">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-white font-bold text-sm tracking-tight">{typeof risk === 'string' ? risk : risk.title}</p>
+                        {risk.severity && (
+                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${
+                            risk.severity === 'High' ? 'bg-red-500 text-white' : 'bg-amber-500/20 text-amber-400'
+                          }`}>
+                            {risk.severity}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-on-surface-variant leading-relaxed">
+                        {typeof risk === 'string' ? "Potential bottleneck identified in system flow." : risk.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
             </div>
           </div>
         </div>
@@ -205,12 +250,7 @@ const Recommendations = () => {
                       <span className="text-[9px] text-slate-500 font-medium">Scale: {plat.scalability}</span>
                     </div>
                     {plat.docs_url && (
-                      <a 
-                        href={plat.docs_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="bg-white/5 px-3 py-1.5 rounded-lg text-white hover:bg-primary transition-all flex items-center gap-2 group/link border border-white/10"
-                      >
+                      <a href={plat.docs_url} target="_blank" rel="noopener noreferrer" className="bg-white/5 px-3 py-1.5 rounded-lg text-white hover:bg-primary transition-all flex items-center gap-2 group/link border border-white/10">
                         <span className="text-[10px] uppercase tracking-widest font-black">Platform</span>
                         <span className="material-symbols-outlined text-[14px] group-hover/link:rotate-45 transition-transform" data-icon="arrow_outward">arrow_outward</span>
                       </a>
@@ -218,23 +258,12 @@ const Recommendations = () => {
                   </div>
                 </div>
               ))}
-              
-              {/* Vercel Friction Troubleshooting */}
-              <div className="bg-primary/5 border border-primary/20 p-5 rounded-xl">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-outlined text-primary text-sm" data-icon="info">info</span>
-                  <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Frictionless Sharing</h4>
-                </div>
-                <p className="text-[10px] text-slate-400 leading-relaxed">
-                  Experiencing a "Vercel Sign-In" wall on shared links? Disable <span className="text-white font-bold italic">"Deployment Protection"</span> in Vercel Settings or deploy to <span className="text-white font-bold italic">Netlify</span> for 100% public access.
-                </p>
-              </div>
             </div>
           </section>
 
           {/* Budget Breakdown */}
           <div className="glass-panel p-6 rounded-xl border border-primary/20">
-             <h3 className="font-headline text-sm font-black text-white uppercase tracking-widest mb-6 border-b border-white/5 pb-2">Fiscal Projections</h3>
+             <h3 className="font-headline text-sm font-black text-white uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Fiscal Projections</h3>
              <div className="space-y-4">
                <div className="flex justify-between items-center">
                  <span className="text-xs text-slate-500">Minimum</span>
@@ -249,7 +278,7 @@ const Recommendations = () => {
                  <span className="text-sm font-bold text-white">{result.budget_breakdown?.at_scale}</span>
                </div>
              </div>
-             <p className="mt-6 text-[11px] text-slate-500 italic text-center">
+             <p className="mt-4 text-[10px] text-slate-500 italic text-center leading-relaxed">
                 {result.budget_breakdown?.note}
              </p>
           </div>
@@ -258,8 +287,8 @@ const Recommendations = () => {
 
       {/* Execution Roadmap using Radial Orbital Timeline */}
       {result.mvp_roadmap && result.mvp_roadmap.length > 0 && (
-        <div className="mt-12 col-span-1 lg:col-span-12">
-          <div className="flex items-center gap-3 mb-6">
+        <div className="mt-12">
+          <div className="flex items-center gap-3 mb-8">
              <span className="material-symbols-outlined text-primary" data-icon="route">route</span>
              <h2 className="font-headline text-xl font-bold tracking-tight text-white uppercase tracking-widest text-sm">Execution Roadmap</h2>
           </div>
@@ -269,7 +298,7 @@ const Recommendations = () => {
                 result.mvp_roadmap.map((step: string, index: number, arr: string[]) => ({
                   id: index + 1,
                   title: step.split(':')[0] || `Phase ${index + 1}`,
-                  date: `Month ${index + 1}`,
+                  date: `Phase ${index + 1}`,
                   content: step.includes(':') ? step.split(':')[1].trim() : step,
                   category: "Roadmap",
                   icon: index === 0 ? PlayCircle : Route,
@@ -282,13 +311,24 @@ const Recommendations = () => {
             
             {result.market_analysis && (
               <div className="lg:col-span-4 space-y-6">
-                <div className="bg-surface-container-low p-6 rounded-2xl border border-white/5 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-[40px] rounded-full group-hover:bg-primary/20 transition-all"></div>
+                <div className="bg-surface-container-low p-6 rounded-2xl border border-white/5 relative overflow-hidden group border-l-4 border-l-primary">
                   <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary text-sm" data-icon="troubleshoot">troubleshoot</span>
                     Market Opportunity
                   </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed italic">"{result.market_analysis.market_opportunity}"</p>
+                  <p className="text-xs text-slate-400 leading-relaxed italic mb-6">"{result.market_analysis.market_opportunity}"</p>
+                  
+                  {result.market_analysis.startup_viability && (
+                    <div className="pt-4 border-t border-white/10">
+                      <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[12px]" data-icon="balance">balance</span>
+                        Startup Viability
+                      </h4>
+                      <p className="text-[11px] text-on-surface-variant leading-relaxed">
+                        {result.market_analysis.startup_viability}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-surface-container-low p-6 rounded-2xl border border-white/5">
@@ -296,11 +336,16 @@ const Recommendations = () => {
                     <span className="material-symbols-outlined text-primary text-sm" data-icon="group">group</span>
                     Core Competitors
                   </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {result.market_analysis.potential_competitors.map((comp, i) => (
-                      <span key={i} className="px-2 py-1 bg-white/5 rounded text-[10px] text-slate-300 border border-white/10 uppercase tracking-tighter">
-                        {comp}
-                      </span>
+                  <div className="space-y-4">
+                    {result.market_analysis.potential_competitors.map((comp: any, i) => (
+                      <div key={i} className="group/comp">
+                        <p className="text-xs font-bold text-white group-hover/comp:text-primary transition-colors">
+                          {typeof comp === 'string' ? comp : comp.name}
+                        </p>
+                        <p className="text-[10px] text-slate-500 leading-relaxed mt-1">
+                          {typeof comp === 'string' ? "Major player in this technical landscape." : comp.description}
+                        </p>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -315,7 +360,7 @@ const Recommendations = () => {
 
                 <button 
                   onClick={() => onDeploy(result.project_title)}
-                  className="w-full py-4 bg-white text-black rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95"
+                  className="w-full py-4 bg-white text-black rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95 px-4"
                 >
                   Deploy Synthesis v1.0
                 </button>

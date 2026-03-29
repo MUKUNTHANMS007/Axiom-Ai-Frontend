@@ -10,14 +10,25 @@ export interface ProjectInput {
   experience_level?: string;
 }
 
+export interface Risk {
+  title: string;
+  description: string;
+  severity?: string;
+}
+
+export interface Competitor {
+  name: string;
+  description: string;
+}
+
 export interface AnalysisResult {
   project_title: string;
   project_summary: string;
   complexity: string;
   estimated_timeline: string;
   confidence_score: number;
-  languages: any[];
-  frameworks: any[];
+  languages: Language[];
+  frameworks: Framework[];
   build_platforms: any[];
   deploy_platforms: any[];
   budget_breakdown: any;
@@ -25,10 +36,11 @@ export interface AnalysisResult {
   architecture_patterns: any[];
   key_considerations: string[];
   mvp_roadmap: string[];
-  potential_risks: string[];
+  potential_risks: Risk[];
   market_analysis?: {
-    potential_competitors: string[];
+    potential_competitors: Competitor[];
     market_opportunity: string;
+    startup_viability?: string;
     growth_strategy: string;
     risk_mitigation: string;
   };
@@ -162,7 +174,9 @@ export interface TeamMemberProfile {
 export interface Language {
   name: string;
   icon: string;
+  type?: string;
   reason: string;
+  detailed_reasoning?: string[];
   match: number;
   use_case: string;
   docs_url?: string;
@@ -173,6 +187,7 @@ export interface Framework {
   icon: string;
   category: string;
   reason: string;
+  detailed_reasoning?: string[];
   match: number;
   docs_url: string;
   learning_curve: string;
