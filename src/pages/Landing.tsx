@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { HeroSection } from '../components/hero-section-2';
+import { motion } from 'framer-motion';
 
 const Landing = () => {
   return (
@@ -13,6 +14,146 @@ const Landing = () => {
       <main className="relative z-10 overflow-hidden">
         {/* Hero Section */}
         <HeroSection />
+
+        {/* High-Fidelity Feature Showcase */}
+        <section id="platform-tour" className="py-24 px-6 bg-background relative overflow-hidden">
+          <div className="max-w-7xl mx-auto space-y-32">
+            
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="font-headline text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter mb-6">A Guided Tour of Infinite Scale</h2>
+              <p className="text-on-surface-variant text-lg font-mono uppercase tracking-widest opacity-60 italic">From logic to deployment, every stage of the lifecycle is orchestrated by agentic intelligence.</p>
+            </div>
+
+            {/* Feature 1: AI Synthesis */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <motion.div 
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="space-y-8"
+              >
+                <div className="space-y-4">
+                  <h4 className="text-primary font-black uppercase tracking-[0.4em] text-[10px]">Step 01: Intelligence at Source</h4>
+                  <h3 className="font-headline text-3xl md:text-5xl font-black text-white leading-none">Architectural Synthesis</h3>
+                  <div className="h-0.5 w-24 bg-primary/30"></div>
+                </div>
+                <p className="text-on-surface-variant text-lg leading-relaxed border-l-2 border-primary/20 pl-8">
+                  Convert complex business requirements into structured engineering blueprints instantly. Our engine maps your logic to the most efficient language and framework stacks, generating a complete MVP roadmap before a single line of code is written.
+                </p>
+                <div className="bg-primary/5 p-6 rounded-2xl border border-primary/20">
+                  <h5 className="text-[10px] font-black uppercase text-white mb-2 tracking-widest">The Why</h5>
+                  <p className="text-on-surface text-sm opacity-80 leading-relaxed italic">Eliminates "Choice Paralysis" and technical debt by ensuring your foundation is built on verified architectural standards tailored to your specific load targets.</p>
+                </div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="relative glass-panel p-2 rounded-3xl border border-white/5 shadow-2xl shadow-primary/10 group overflow-hidden"
+              >
+                <img src="/showcase/synthesis.png" alt="Architecture Synthesis" className="rounded-2xl transition-transform duration-700 group-hover:scale-[1.02]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+              </motion.div>
+            </div>
+
+            {/* Feature 2: Team Synergy */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="relative glass-panel p-2 rounded-3xl border border-white/5 shadow-2xl shadow-secondary/10 group overflow-hidden lg:order-1 order-2"
+              >
+                <img src="/showcase/synergy.png" alt="Team Synergy" className="rounded-2xl transition-transform duration-700 group-hover:scale-[1.02]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="space-y-8 lg:order-2 order-1"
+              >
+                <div className="space-y-4">
+                  <h4 className="text-secondary font-black uppercase tracking-[0.4em] text-[10px]">Step 02: Human-Technical Alignment</h4>
+                  <h3 className="font-headline text-3xl md:text-5xl font-black text-white leading-none">Synergy Analytics</h3>
+                  <div className="h-0.5 w-24 bg-secondary/30"></div>
+                </div>
+                <p className="text-on-surface-variant text-lg leading-relaxed border-l-2 border-secondary/20 pl-8">
+                  Monitor the "Vibe Score" of your technical workforce. Axiom analyzes real-time telemetry from your team's active nodes to identify skill-gaps (DevOps, Security, Backend) and predicts synergy bottlenecks before they impact deployment velocity.
+                </p>
+                <div className="bg-secondary/5 p-6 rounded-2xl border border-secondary/20">
+                  <h5 className="text-[10px] font-black uppercase text-white mb-2 tracking-widest">The Why</h5>
+                  <p className="text-on-surface text-sm opacity-80 leading-relaxed italic">Software isn't just code; it's people. By mapping the right minds to the right architectural nodes, we maximize velocity while avoiding burnout and misalignment.</p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Feature 3: Engineering Workflow */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <motion.div 
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="space-y-8"
+              >
+                <div className="space-y-4">
+                  <h4 className="text-tertiary font-black uppercase tracking-[0.4em] text-[10px]">Step 03: Agentic Execution</h4>
+                  <h3 className="font-headline text-3xl md:text-5xl font-black text-white leading-none">Real-Time Workflow</h3>
+                  <div className="h-0.5 w-24 bg-tertiary/30"></div>
+                </div>
+                <p className="text-on-surface-variant text-lg leading-relaxed border-l-2 border-tertiary/20 pl-8">
+                  Maintain a live pulse of every synthesis, blueprint save, and task evolution. Our agentic workflow engine tracks the DNA of your project as it evolves, ensuring that every deployment is backed by a verified audit trail of architectural decisions.
+                </p>
+                <div className="bg-tertiary/5 p-6 rounded-2xl border border-tertiary/20">
+                  <h5 className="text-[10px] font-black uppercase text-white mb-2 tracking-widest">The Why</h5>
+                  <p className="text-on-surface text-sm opacity-80 leading-relaxed italic">Absolute transparency into project maturity. Teams can visualize the 'Task Evolution' in real-time, allowing lead architects to focus on strategy while the AI manages operational status.</p>
+                </div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="relative glass-panel p-2 rounded-3xl border border-white/5 shadow-2xl shadow-tertiary/10 group overflow-hidden"
+              >
+                <img src="/showcase/workflow.png" alt="Engineering Workflow" className="rounded-2xl transition-transform duration-700 group-hover:scale-[1.02]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+              </motion.div>
+            </div>
+
+            {/* Feature 4: Shared Memory */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="relative glass-panel p-2 rounded-3xl border border-white/5 shadow-2xl shadow-primary/10 group overflow-hidden lg:order-1 order-2"
+              >
+                <img src="/showcase/history.png" alt="Shared Memory" className="rounded-2xl transition-transform duration-700 group-hover:scale-[1.02]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="space-y-8 lg:order-2 order-1"
+              >
+                <div className="space-y-4">
+                  <h4 className="text-primary font-black uppercase tracking-[0.4em] text-[10px]">Step 04: Collective Pattern Intelligence</h4>
+                  <h3 className="font-headline text-3xl md:text-5xl font-black text-white leading-none">Shared Pattern Memory</h3>
+                  <div className="h-0.5 w-24 bg-primary/30"></div>
+                </div>
+                <p className="text-on-surface-variant text-lg leading-relaxed border-l-2 border-primary/20 pl-8">
+                  Never reinvent the wheel. Our history engine archives every organizational blueprint and synthesis, allowing your entire workforce to stand on the shoulders of past technical successes. Shared project history ensures knowledge remains persistent even as teams evolve.
+                </p>
+                <div className="bg-primary/5 p-6 rounded-2xl border border-primary/20">
+                  <h5 className="text-[10px] font-black uppercase text-white mb-2 tracking-widest">The Why</h5>
+                  <p className="text-on-surface text-sm opacity-80 leading-relaxed italic">Prevents technical duplication and siloed knowledge. New project members can immediately access the 'Architectural Archive' to understand the rationale behind your existing infrastructure.</p>
+                </div>
+              </motion.div>
+            </div>
+
+          </div>
+        </section>
 
         {/* Bento Grid - Features */}
         <section id="features" className="py-32 px-6">
