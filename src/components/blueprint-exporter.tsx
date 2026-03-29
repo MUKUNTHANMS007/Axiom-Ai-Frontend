@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { fetchHistory, type HistoryItem, type AnalysisResult } from '@/services/api';
 import { cn } from '@/lib/utils';
 import { FileDown, CheckCircle2, AlertCircle, FileText, Layout, X, Loader2 } from 'lucide-react';
@@ -47,143 +47,159 @@ export const BlueprintExporter: React.FC<BlueprintExporterProps> = ({ isOpen, on
   const generatePDF = () => {
     if (!selectedProject || !selectedProject.result_json) return;
 
-    const doc = new jsPDF() as any;
-    const res = selectedProject.result_json as AnalysisResult;
-    const timestamp = new Date().toLocaleDateString();
+    try {
+      const doc = new jsPDF() as any;
+      const res = selectedProject.result_json as AnalysisResult;
+      const timestamp = new Date().toLocaleDateString();
 
-    // -- Header --
-    doc.setFillColor(15, 15, 15);
-    doc.rect(0, 0, 210, 40, 'F');
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
-    doc.text(res.project_title.toUpperCase(), 15, 25);
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`ARCHITECTURAL BLUEPRINT v1.0 | ${timestamp}`, 15, 32);
-    
-    doc.setDrawColor(124, 58, 237); // Primary color
-    doc.setLineWidth(1);
-    doc.line(15, 35, 60, 35);
+      // -- Header --
+      doc.setFillColor(15, 15, 15);
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text((res.project_title || "SYSTME ARCHITECTURE").toUpperCase(), 15, 25);
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`ARCHITECTURAL BLUEPRINT v1.0 | ${timestamp}`, 15, 32);
+      
+      doc.setDrawColor(124, 58, 237); // Primary color
+      doc.setLineWidth(1);
+      doc.line(15, 35, 60, 35);
 
-    let y = 50;
+      let y = 50;
 
-    // -- Executive Summary --
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("EXECUTIVE SUMMARY", 15, y);
-    y += 8;
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const summaryLines = doc.splitTextToSize(res.project_summary, 180);
-    doc.text(summaryLines, 15, y);
-    y += (summaryLines.length * 5) + 10;
-
-    // Stats Table
-    (doc as any).autoTable({
-      startY: y,
-      head: [['Metric', 'Value']],
-      body: [
-        ['Confidence Score', `${res.confidence_score}%`],
-        ['Complexity', res.complexity],
-        ['Estimated Timeline', res.estimated_timeline],
-      ],
-      theme: 'striped',
-      headStyles: { fillColor: [124, 58, 237] },
-      margin: { left: 15 }
-    });
-    
-    y = (doc as any).lastAutoTable.finalY + 15;
-
-    if (exportMode === 'full') {
-      // -- Technical Stack --
+      // -- Executive Summary --
+      doc.setTextColor(0, 0, 0);
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
-      doc.text("TECHNICAL ECOSYSTEM", 15, y);
-      y += 10;
+      doc.text("EXECUTIVE SUMMARY", 15, y);
+      y += 8;
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      const summaryLines = doc.splitTextToSize(res.project_summary || "No summary provided.", 180);
+      doc.text(summaryLines, 15, y);
+      y += (summaryLines.length * 5) + 10;
 
-      const techBody = [
-        ...res.languages.map(l => [l.name, l.type || 'Language', l.reason]),
-        ...res.frameworks.map(f => [f.name, f.category || 'Framework', f.reason])
-      ];
-
-      (doc as any).autoTable({
+      // Stats Table
+      autoTable(doc, {
         startY: y,
-        head: [['Technology', 'Type', 'Justification']],
-        body: techBody,
-        theme: 'grid',
-        headStyles: { fillColor: [60, 60, 60] },
-        styles: { fontSize: 9 },
+        head: [['Metric', 'Value']],
+        body: [
+          ['Confidence Score', `${res.confidence_score || 0}%`],
+          ['Complexity', res.complexity || 'Unknown'],
+          ['Estimated Timeline', res.estimated_timeline || 'N/A'],
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [124, 58, 237] },
         margin: { left: 15 }
       });
-
+      
       y = (doc as any).lastAutoTable.finalY + 15;
 
-      // -- Risk Analysis --
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text("RISK ASSESSMENT", 15, y);
-      y += 10;
-
-      const riskBody = res.potential_risks.map(r => [
-        typeof r === 'string' ? r : r.title,
-        typeof r === 'string' ? 'Medium' : r.severity || 'N/A',
-        typeof r === 'string' ? 'See digital dashboard for details.' : r.description
-      ]);
-
-      (doc as any).autoTable({
-        startY: y,
-        head: [['Risk Factor', 'Severity', 'Impact Analysis']],
-        body: riskBody,
-        theme: 'grid',
-        headStyles: { fillColor: [239, 68, 68] },
-        styles: { fontSize: 9 },
-        margin: { left: 15 }
-      });
-
-      y = (doc as any).lastAutoTable.finalY + 15;
-
-      // -- Market Analysis --
-      if (res.market_analysis) {
-        if (y > 250) { doc.addPage(); y = 20; }
+      if (exportMode === 'full') {
+        // -- Technical Stack --
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
-        doc.text("MARKET VIABILITY", 15, y);
-        y += 8;
-        
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        doc.text("Honest Assessment:", 15, y);
-        y += 5;
-        doc.setFont("helvetica", "normal");
-        const marketLines = doc.splitTextToSize(res.market_analysis.market_opportunity, 180);
-        doc.text(marketLines, 15, y);
-        y += (marketLines.length * 5) + 5;
+        doc.text("TECHNICAL ECOSYSTEM", 15, y);
+        y += 10;
 
+        const techBody = [
+          ...(res.languages || []).map(l => [l.name, l.type || 'Language', l.reason || '']),
+          ...(res.frameworks || []).map(f => [f.name, f.category || 'Framework', f.reason || ''])
+        ];
+
+        if (techBody.length > 0) {
+          autoTable(doc, {
+            startY: y,
+            head: [['Technology', 'Type', 'Justification']],
+            body: techBody,
+            theme: 'grid',
+            headStyles: { fillColor: [60, 60, 60] },
+            styles: { fontSize: 9 },
+            margin: { left: 15 }
+          });
+          y = (doc as any).lastAutoTable.finalY + 15;
+        } else {
+          doc.setFontSize(9);
+          doc.text("No technical stack defined.", 15, y);
+          y += 10;
+        }
+
+        // -- Risk Analysis --
+        doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
-        doc.text("Startup Viability:", 15, y);
-        y += 5;
-        doc.setFont("helvetica", "normal");
-        const viabilityLines = doc.splitTextToSize(res.market_analysis.startup_viability || "N/A", 180);
-        doc.text(viabilityLines, 15, y);
-        y += (viabilityLines.length * 5) + 10;
+        doc.text("RISK ASSESSMENT", 15, y);
+        y += 10;
+
+        const risks = res.potential_risks || [];
+        const riskBody = risks.map((r: any) => [
+          typeof r === 'string' ? r : r.title || 'Risk',
+          typeof r === 'string' ? 'Medium' : r.severity || 'N/A',
+          typeof r === 'string' ? 'See digital dashboard for details.' : r.description || ''
+        ]);
+
+        if (riskBody.length > 0) {
+          autoTable(doc, {
+            startY: y,
+            head: [['Risk Factor', 'Severity', 'Impact Analysis']],
+            body: riskBody,
+            theme: 'grid',
+            headStyles: { fillColor: [239, 68, 68] },
+            styles: { fontSize: 9 },
+            margin: { left: 15 }
+          });
+          y = (doc as any).lastAutoTable.finalY + 15;
+        } else {
+          doc.setFontSize(9);
+          doc.text("No significant risks identified.", 15, y);
+          y += 10;
+        }
+
+        // -- Market Analysis --
+        if (res.market_analysis) {
+          if (y > 240) { doc.addPage(); y = 20; }
+          doc.setFontSize(14);
+          doc.setFont("helvetica", "bold");
+          doc.text("MARKET VIABILITY", 15, y);
+          y += 8;
+          
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "bold");
+          doc.text("Honest Assessment:", 15, y);
+          y += 5;
+          doc.setFont("helvetica", "normal");
+          const marketLines = doc.splitTextToSize(res.market_analysis.market_opportunity || "N/A", 180);
+          doc.text(marketLines, 15, y);
+          y += (marketLines.length * 5) + 5;
+
+          doc.setFont("helvetica", "bold");
+          doc.text("Startup Viability:", 15, y);
+          y += 5;
+          doc.setFont("helvetica", "normal");
+          const viabilityLines = doc.splitTextToSize(res.market_analysis.startup_viability || "N/A", 180);
+          doc.text(viabilityLines, 15, y);
+          y += (viabilityLines.length * 5) + 10;
+        }
       }
-    }
 
-    // -- Footer --
-    const pageCount = (doc as any).internal.getNumberOfPages();
-    for(let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text(`Page ${i} of ${pageCount} | Generated by Axiom AI Platform`, 105, 290, { align: "center" });
-    }
+      // -- Footer --
+      const pageCount = (doc as any).internal.getNumberOfPages();
+      for(let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(150);
+          doc.text(`Page ${i} of ${pageCount} | Generated by Axiom AI Platform`, 105, 290, { align: "center" });
+      }
 
-    doc.save(`${res.project_title.replace(/\s+/g, '_')}_Blueprint.pdf`);
+      doc.save(`${(res.project_title || "Blueprint").replace(/\s+/g, '_')}_Blueprint.pdf`);
+    } catch (err) {
+      console.error("PDF Generation crashed:", err);
+      alert("Failed to generate PDF. Please check architectural data.");
+    }
   };
 
   const isFinalized = selectedProject?.result_json !== undefined;
