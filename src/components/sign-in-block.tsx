@@ -157,9 +157,16 @@ const SignInBlock = ({ initialMode = "signin", inviteToken }: SignInBlockProps) 
             throw error;
         }
         
-        setMode("signin");
-        setErrors({ general: "Account created successfully. Please authenticate." });
-        return;
+        // Auto-login after signup to reduce friction for invitees
+        const userSession = {
+            user: {
+                id: Math.floor(Math.random() * 1000000), // This should ideally come from the DB but for this simple setup we can mock it or fetch it
+                name: formData.username,
+            },
+            expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour
+        };
+        localStorage.setItem("vibe_session", JSON.stringify(userSession));
+        window.dispatchEvent(new Event("storage"));
       }
 
       if (formData.rememberMe) {

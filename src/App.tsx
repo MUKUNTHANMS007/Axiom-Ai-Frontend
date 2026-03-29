@@ -91,8 +91,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={session ? <Navigate to="/dashboard" replace /> : <Login initialMode="signin" />} />
-        <Route path="/signup" element={session ? <Navigate to="/dashboard" replace /> : <Login initialMode="signup" />} />
+        <Route path="/login" element={<Login initialMode="signin" />} />
+        <Route path="/signup" element={<Login initialMode="signup" />} />
         <Route path="/invite/:token" element={<InviteAccept />} />
         
         {/* Protected Routes */}

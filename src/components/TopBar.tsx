@@ -90,10 +90,12 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
           <span className="material-symbols-outlined" data-icon="menu">menu</span>
         </button>
 
-        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate('/')}>
-          <span className="material-symbols-outlined text-[#B6A0FF] text-2xl" data-icon="terminal">terminal</span>
-          <h1 className="text-xl md:text-2xl font-black font-headline tracking-tighter text-[#B6A0FF] drop-shadow-[0_0_8px_rgba(182,160,255,0.4)] leading-none">
-            AXIOM <span className="tracking-widest ml-0.5">AI</span>
+        <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/')}>
+          <div className="w-8 h-8 rounded-lg bg-[#050505] flex items-center justify-center border border-white/10 overflow-hidden shadow-lg group-hover:border-primary/50 transition-all duration-300">
+            <img src="/axiom-logo.png" alt="Axiom AI Logo" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          </div>
+          <h1 className="text-xl md:text-2xl font-black font-headline tracking-tighter text-white drop-shadow-[0_0_8px_rgba(182,160,255,0.2)] leading-none">
+            AXIOM <span className="text-[#B6A0FF] tracking-widest ml-0.5">AI</span>
           </h1>
         </div>
       </div>

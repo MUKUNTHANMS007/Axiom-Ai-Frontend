@@ -24,7 +24,7 @@ const Layout = () => {
       />
       <main className="lg:ml-64 min-h-screen relative flex flex-col transition-all duration-300">
         <TopBar onToggleSidebar={() => setIsSidebarOpen(true)} />
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <Outlet context={{ onDeploy: triggerDeployment }} />
         </div>
         {/* Padding for BottomNavBar on mobile */}

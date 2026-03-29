@@ -1,4 +1,5 @@
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import SignInBlock from "@/components/sign-in-block";
 
 interface LoginProps {
@@ -7,7 +8,20 @@ interface LoginProps {
 
 const Login = ({ initialMode = "signin" }: LoginProps) => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const inviteToken = searchParams.get("invite");
+
+  useEffect(() => {
+    const sessionStr = localStorage.getItem("vibe_session");
+    if (sessionStr) {
+       // Already has session, redirect
+       if (inviteToken) {
+           navigate(`/invite/${inviteToken}`, { replace: true });
+       } else {
+           navigate('/dashboard', { replace: true });
+       }
+    }
+  }, [inviteToken, navigate]);
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-black">

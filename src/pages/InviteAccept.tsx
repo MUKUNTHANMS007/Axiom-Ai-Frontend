@@ -104,10 +104,10 @@ const InviteAccept = () => {
             </button>
           ) : (
             <button
-              onClick={() => navigate(`/login?invite=${token}`)}
+              onClick={() => navigate(`/signup?invite=${token}`)}
               className="px-10 py-5 rounded-2xl font-bold text-sm tracking-tight text-slate-500 hover:bg-white/5 transition-colors border border-white/10"
             >
-              Sign In to View
+              Register to View
             </button>
           )}
           <button
@@ -115,7 +115,7 @@ const InviteAccept = () => {
             disabled={isResponding}
             className="px-12 py-5 bg-white text-black rounded-2xl font-black text-sm tracking-tight hover:bg-primary hover:text-white transition-all shadow-xl shadow-white/5 disabled:opacity-50"
           >
-            {isResponding ? 'Synchronizing...' : user ? 'Accept Invitation' : 'Register to Join Team'}
+            {isResponding ? 'Synchronizing...' : user ? 'Accept Invitation' : 'Join Team Engine'}
           </button>
         </div>
 
