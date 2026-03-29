@@ -28,13 +28,29 @@ const Support = () => {
     setIsSubmitting(true);
     setError(null);
     try {
+      // Check for Supabase session first, then fallback to local session protocol
+      let currentUser = null;
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      
+      if (user) {
+        currentUser = { id: user.id, email: user.email || user.user_metadata?.name || 'Anonymous' };
+      } else {
+        const localSession = localStorage.getItem("vibe_session");
+        if (localSession) {
+          const parsed = JSON.parse(localSession);
+          currentUser = { 
+            id: String(parsed.user?.id || ''), 
+            email: String(parsed.user?.name || 'Anonymous Architect') 
+          };
+        }
+      }
+
+      if (!currentUser || !currentUser.id) {
         setError("Neural Connection Failed. Please re-authenticate.");
         return;
       }
 
-      await submitSupportRequest(user.id, user.email || user.user_metadata?.name || 'Anonymous Architect', message);
+      await submitSupportRequest(currentUser.id, currentUser.email, message);
       
       setIsSuccess(true);
       setMessage('');
