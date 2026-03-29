@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fetchSavedStacks, fetchHistory, assignTask, searchUsers, createInvite, createProject, fetchProject, type TaskAssignment } from '../services/api';
+import { fetchSavedStacks, fetchHistory, assignTask, searchUsers, createInvite, createProject, fetchProject, fetchAnalytics, type TaskAssignment, type AnalyticsData } from '../services/api';
 import TechIcon from '@/components/ui/tech-icon';
 import { supabase } from '@/lib/supabase';
 
@@ -31,6 +31,7 @@ const TeamStack = () => {
   const [linkCopied, setLinkCopied] = useState(false);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
 
   useEffect(() => {
     const initPage = async () => {
@@ -76,6 +77,9 @@ const TeamStack = () => {
             color: 'bg-primary' 
           }]);
         }
+        // 3. Load Analytics
+        const stats = await fetchAnalytics(user.name);
+        setAnalytics(stats);
       } catch (err) {
         console.error("Initialization error:", err);
       } finally {
@@ -258,19 +262,33 @@ const TeamStack = () => {
         <div className="absolute top-0 right-0 p-4">
           <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20 ai-pulse">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-            <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Rapid Prototyping</span>
+            <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
+              {analytics && analytics.average_score >= 95 ? 'Maximum Synergy' : 
+               analytics && analytics.average_score >= 85 ? 'Rapid Prototyping' :
+               analytics && analytics.average_score >= 70 ? 'Architecture Optimization' :
+               analytics && analytics.average_score > 0 ? 'Strategic Alignment' : 'Initial Analysis'}
+            </span>
           </div>
         </div>
         <div className="space-y-4">
           <div className="space-y-1">
             <p className="text-sm font-medium text-on-surface-variant">Technical Synergy</p>
-            <p className="text-5xl font-headline font-bold text-primary tracking-tighter leading-none">94.2%</p>
+            <p className="text-5xl font-headline font-bold text-primary tracking-tighter leading-none">
+              {analytics ? `${analytics.average_score}%` : '---'}
+            </p>
           </div>
           <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-primary to-secondary w-[94.2%] transition-all duration-1000"></div>
+            <div 
+              className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000"
+              style={{ width: `${analytics?.average_score || 0}%` }}
+            ></div>
           </div>
           <p className="text-xs text-on-surface-variant leading-relaxed">
-            System architecture is aligned with current sprint velocity. Node redundancy minimized.
+            {analytics && analytics.average_score > 90 
+              ? "System architecture is highly optimized and aligned with current sprint velocity. Node redundancy eliminated." 
+              : analytics && analytics.average_score > 0
+              ? "Architecture analysis is active. Team synergy is evolving based on recent synthesis events."
+              : "No active project metrics found. Start a synthesis to initialize your technical synergy telemetry."}
           </p>
         </div>
       </section>
