@@ -102,40 +102,40 @@ const Workflow = () => {
       icon: 'auto_awesome',
       label: 'AI Synthesis',
       color: 'text-primary',
-      bg: 'bg-primary/10',
-      border: 'border-primary/20',
+      bg: 'bg-primary/15',
+      border: 'border-primary/30',
       dot: 'bg-primary',
     },
     vault_save: {
       icon: 'inventory_2',
       label: 'Saved to Vault',
       color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      border: 'border-purple-500/20',
+      bg: 'bg-purple-500/15',
+      border: 'border-purple-500/30',
       dot: 'bg-purple-400',
     },
     deployment: {
       icon: 'rocket_launch',
       label: 'Deployed',
       color: 'text-emerald-400',
-      bg: 'bg-emerald-500/10',
-      border: 'border-emerald-500/20',
+      bg: 'bg-emerald-500/15',
+      border: 'border-emerald-500/30',
       dot: 'bg-emerald-400',
     },
     task_update: {
       icon: 'edit_note',
       label: 'Task Evolution',
       color: 'text-amber-400',
-      bg: 'bg-amber-500/10',
-      border: 'border-amber-500/20',
+      bg: 'bg-amber-500/15',
+      border: 'border-amber-500/30',
       dot: 'bg-amber-400',
     },
     member_joined: {
       icon: 'person_add',
       label: 'New Collaborator',
       color: 'text-blue-400',
-      bg: 'bg-blue-500/10',
-      border: 'border-blue-500/20',
+      bg: 'bg-blue-500/15',
+      border: 'border-blue-500/30',
       dot: 'bg-blue-400',
     }
   };
@@ -244,8 +244,8 @@ const Workflow = () => {
                                   {item.title}
                                 </h3>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  <span className={`text-[10px] font-bold uppercase tracking-widest ${config.color}`}>
-                                    <span className="material-symbols-outlined text-[10px] align-middle mr-1" data-icon={config.icon}>{config.icon}</span>
+                                  <span className={`text-xs font-bold uppercase tracking-wider ${config.color}`}>
+                                    <span className="material-symbols-outlined text-xs align-middle mr-1" data-icon={config.icon}>{config.icon}</span>
                                     {config.label}
                                   </span>
                                   <span className="text-slate-600 text-[10px]">·</span>
@@ -270,11 +270,11 @@ const Workflow = () => {
                             <div className="mt-4 p-4 bg-black/40 rounded-xl border border-white/5 relative overflow-hidden group/task">
                               <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-2xl rounded-full"></div>
                               <div className="flex items-center gap-3 mb-3">
-                                <span className="px-2 py-0.5 rounded bg-white/5 text-[9px] font-black text-slate-500 uppercase tracking-tighter">
+                                <span className="px-2 py-0.5 rounded bg-white/10 text-[10px] font-bold text-slate-400 uppercase tracking-normal">
                                   {item.old_status?.replace('_', ' ')}
                                 </span>
-                                <span className="material-symbols-outlined text-[10px] text-slate-700" data-icon="trending_flat">trending_flat</span>
-                                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-[9px] font-black text-amber-400 uppercase tracking-tighter">
+                                <span className="material-symbols-outlined text-[10px] text-slate-600" data-icon="trending_flat">trending_flat</span>
+                                <span className="px-2 py-1 rounded bg-amber-500/20 text-[10px] font-bold text-amber-400 uppercase tracking-normal">
                                   {item.new_status?.replace('_', ' ')}
                                 </span>
                               </div>
@@ -318,7 +318,7 @@ const Workflow = () => {
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">In Synthesis</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">In Synthesis</span>
                 <span className="ml-auto text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
                   {kanban.synthesis.length}
                 </span>
@@ -336,12 +336,12 @@ const Workflow = () => {
                 )}
               </div>
             </div>
-
+ 
             {/* In Vault */}
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">In Vault</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">In Vault</span>
                 <span className="ml-auto text-[10px] font-bold text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-full">
                   {vaultItems.length}
                 </span>
@@ -360,12 +360,12 @@ const Workflow = () => {
                 )}
               </div>
             </div>
-
+ 
             {/* Deployed */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Deployed</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Deployed</span>
                 <span className="ml-auto text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
                   {kanban.deployed.length}
                 </span>
@@ -395,7 +395,7 @@ const Workflow = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-white font-medium truncate">{item.title}</p>
-                  <p className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${typeConfig[item.type].color}`}>
+                  <p className={`text-xs font-bold uppercase tracking-wide mt-0.5 ${typeConfig[item.type].color}`}>
                     {typeConfig[item.type].label}
                   </p>
                 </div>
