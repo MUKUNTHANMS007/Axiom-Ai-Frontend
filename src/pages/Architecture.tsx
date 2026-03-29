@@ -167,9 +167,10 @@ const Architecture = () => {
         navigate('/my-projects');
       }, 1500);
     } catch (err: any) {
-      console.error(err);
-      setError("Critical: Failed to deploy architecture to project workspace.");
+      console.error("Architecture deployment failed:", err);
+      setError(`Critical Dispatch Failure: ${err.message || "Communication link broken during project creation"}`);
       setAddingToProjects(false);
+      setAddStatus(null);
     }
   };
 
