@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   fetchProject, createInvite, searchUsers, assignTask, createTask, fetchProjectTasks, updateTaskStatus, removeMember,
-  updateProject, deleteProject,
   type Project, type Task, type TaskAssignment, type TeamMemberProfile 
 } from '../services/api';
 
@@ -12,7 +11,7 @@ const ProjectDetail = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'team' | 'tasks' | 'settings'>('team');
+  const [activeTab, setActiveTab] = useState<'team' | 'tasks'>('team');
   const [inviteQuery, setInviteQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{ username: string }[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -34,11 +33,6 @@ const ProjectDetail = () => {
   const [manualPriority, setManualPriority] = useState('medium');
   const [isCreatingManual, setIsCreatingManual] = useState(false);
   
-  // Settings State
-  const [editName, setEditName] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('vibe_session') || '{}').user;
@@ -57,8 +51,6 @@ const ProjectDetail = () => {
       ]);
       setProject(projData);
       setTasks(taskData);
-      setEditName(projData.name);
-      setEditDescription(projData.description || '');
     } catch (err) {
       console.error('Failed to load project:', err);
     } finally {
@@ -141,12 +133,9 @@ const ProjectDetail = () => {
   const handleConfirmTask = async () => {
     if (!assignment || !projectId || !user?.name) return;
 
-    // Helper to ensure the AI's returned name exactly matches a valid team member
     const sanitizeName = (returnedName: string, allowedProfiles: any[]) => {
       const cleanTarget = (returnedName || "").split('(')[0].split('/')[0].trim().toLowerCase();
-      // Try to find an exact match first
       const match = allowedProfiles.find(p => p.name.trim().toLowerCase() === cleanTarget);
-      // If we found a match among team members, use their exact name. Otherwise, fall back to current user.
       return match ? match.name : user.name;
     };
 
@@ -164,7 +153,7 @@ const ProjectDetail = () => {
       });
       setTaskInput('');
       setAssignment(null);
-      loadProjectData(); // Refresh tasks list
+      loadProjectData();
     } catch (err) {
       console.error('Task creation failed:', err);
     }
@@ -177,47 +166,6 @@ const ProjectDetail = () => {
       loadProjectData(); // Refresh tasks list
     } catch (err) {
       console.error('Status update failed:', err);
-    }
-  };
-
-  const handleRemoveMember = async (memberId: string) => {
-    if (!projectId || !isOwner || memberId === user?.name) return;
-    if (!confirm(`Are you sure you want to remove ${memberId} from the project?`)) return;
-    try {
-      await removeMember(projectId, memberId);
-      loadProjectData(); // Refresh member list
-    } catch (err) {
-      console.error('Removal failed:', err);
-    }
-  };
-
-  const handleUpdateProject = async () => {
-    if (!projectId || !isOwner) return;
-    setIsUpdating(true);
-    try {
-      const updated = await updateProject(projectId, editName, editDescription);
-      setProject(updated);
-      alert('Project synchronized successfully.');
-    } catch (err) {
-      console.error('Update failed:', err);
-      alert('Failed to sync project metadata.');
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleDeleteProject = async () => {
-    if (!projectId || !isOwner) return;
-    if (!confirm("CRITICAL: Permanent deletion protocol requested. This will wipe all project data. Proceed?")) return;
-    
-    setIsDeleting(true);
-    try {
-      await deleteProject(projectId);
-      navigate('/my-projects');
-    } catch (err) {
-      console.error('Deletion failed:', err);
-      alert('Failed to initiate deletion protocol.');
-      setIsDeleting(false);
     }
   };
 
@@ -246,6 +194,17 @@ const ProjectDetail = () => {
     }
   };
 
+  const handleRemoveMember = async (memberId: string) => {
+    if (!projectId || !isOwner || memberId === user?.name) return;
+    if (!confirm(`Are you sure you want to remove ${memberId} from the project?`)) return;
+    try {
+      await removeMember(projectId, memberId);
+      loadProjectData();
+    } catch (err) {
+      console.error('Removal failed:', err);
+    }
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-40 gap-4">
       <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -261,7 +220,6 @@ const ProjectDetail = () => {
 
   return (
     <section className="p-8 lg:p-12 max-w-7xl mx-auto w-full">
-      {/* Header */}
       <div className="mb-12">
         <div className="flex items-center gap-4 mb-3">
           <button onClick={() => navigate('/my-projects')} className="text-slate-500 hover:text-white transition-colors">
@@ -276,7 +234,7 @@ const ProjectDetail = () => {
             {project.name}
           </h1>
           <div className="flex items-center gap-2">
-            {(['team', 'tasks', 'settings'] as const).map(t => (
+            {(['team', 'tasks'] as const).map(t => (
               <button
                 key={t}
                 onClick={() => setActiveTab(t)}
@@ -294,10 +252,9 @@ const ProjectDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Main Content Area */}
         <div className="lg:col-span-8 space-y-12">
           {activeTab === 'team' && (
-            <div className="space-y-10">              {/* Invite Panel (Owner Only) synchronized with TeamStack */}
+            <div className="space-y-10">
               {isOwner && (
                 <div className="bg-surface-container-low rounded-3xl border border-white/5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full -z-10"></div>
@@ -313,7 +270,6 @@ const ProjectDetail = () => {
                       </div>
                     </div>
                     
-                    {/* Tab Switcher */}
                     <div className="flex bg-black/40 rounded-xl p-1 gap-1 mb-8">
                       {(['search', 'link'] as const).map((mode) => (
                         <button
@@ -688,91 +644,6 @@ const ProjectDetail = () => {
             </div>
           )}
 
-          {activeTab === 'settings' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-12"
-            >
-              <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 space-y-8">
-                <div>
-                  <h2 className="text-xl font-headline font-bold text-white mb-2 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-sm" data-icon="settings">settings</span>
-                    Project Configuration
-                  </h2>
-                  <p className="text-slate-500 text-xs mt-1">Update the technical identity and description of this workspace.</p>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Project Identifier (Name)</label>
-                    <input 
-                      type="text" 
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary transition-colors font-bold tracking-tight"
-                      placeholder="Enter project name..."
-                      disabled={!isOwner}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Project Synthesis (Description)</label>
-                    <textarea 
-                      value={editDescription}
-                      onChange={(e) => setEditDescription(e.target.value)}
-                      rows={4}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary transition-colors resize-none leading-relaxed text-sm italic"
-                      placeholder="Enter project description..."
-                      disabled={!isOwner}
-                    />
-                  </div>
-                </div>
-
-                {isOwner && (
-                  <div className="pt-4">
-                    <button 
-                      onClick={handleUpdateProject}
-                      disabled={isUpdating}
-                      className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
-                    >
-                      {isUpdating ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <span className="material-symbols-outlined text-sm" data-icon="sync">sync</span>
-                      )}
-                      Sync Variations
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {isOwner && (
-                <div className="bg-red-500/5 rounded-3xl border border-red-500/20 p-8 space-y-6">
-                  <div>
-                    <h2 className="text-lg font-headline font-bold text-red-400 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm" data-icon="warning">warning</span>
-                      Danger Zone
-                    </h2>
-                    <p className="text-red-400/50 text-[10px] uppercase font-bold tracking-widest mt-1">High Impact Administrative Actions</p>
-                  </div>
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 bg-red-500/5 rounded-2xl border border-red-400/10">
-                    <div>
-                      <h4 className="text-white font-bold text-sm mb-1 uppercase tracking-wider">Permanent Deletion</h4>
-                      <p className="text-red-400/40 text-[10px] italic">Wipe all tasks, members, and roadmap data. This cannot be undone.</p>
-                    </div>
-                    <button 
-                      onClick={handleDeleteProject}
-                      disabled={isDeleting}
-                      className="px-8 py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
-                    >
-                      {isDeleting ? 'Terminating...' : 'Delete Project'}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          )}
         </div>
 
         {/* Sidebar Info */}

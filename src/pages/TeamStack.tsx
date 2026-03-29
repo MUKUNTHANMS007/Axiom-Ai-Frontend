@@ -112,19 +112,30 @@ const TeamStack = () => {
     if (isOptimizing) return;
     setIsOptimizing(true);
     
-    // Simulate AI computing "Optimized Bench"
+    // Technical Gap Analysis logic
+    const allSkills = dynamicMembers.flatMap(m => m.skills.map((s: string) => s.toLowerCase()));
+    const missingAreas: string[] = [];
+    if (!allSkills.some(s => s.includes('devops') || s.includes('kubernetes') || s.includes('terraform'))) missingAreas.push('Infrastructure (DevOps)');
+    if (!allSkills.some(s => s.includes('security') || s.includes('auth'))) missingAreas.push('Security / IAM');
+    if (!allSkills.some(s => s.includes('ai') || s.includes('model') || s.includes('neural'))) missingAreas.push('AI / ML Engineering');
+
     setTimeout(() => {
-      const devOpsSpec = { 
-        name: 'Jordan S.', 
-        role: 'DevOps Specialist', 
-        skills: ['Kubernetes', 'CI/CD', 'Terraform'], 
-        color: 'bg-green-500' 
-      };
-      
-      setDynamicMembers(prev => {
-        if (prev.find(m => m.name === 'Jordan S.')) return prev;
-        return [...prev, devOpsSpec];
-      });
+      if (missingAreas.length > 0) {
+        const systemsArchitect = { 
+          name: 'Jordan S.', 
+          role: 'Systems Architect', 
+          skills: ['Kubernetes', 'CI/CD', 'Terraform', 'Cloud Security'], 
+          color: 'bg-green-500' 
+        };
+        
+        setDynamicMembers(prev => {
+          if (prev.find(m => m.name === 'Jordan S.')) return prev;
+          alert(`Gap Analysis Complete: Found structural vulnerabilities in ${missingAreas.join(', ')}. Synchronization Protocol: Adding 'Jordan S.' to bridge infrastructure gaps.`);
+          return [...prev, systemsArchitect];
+        });
+      } else {
+        alert("System analysis complete: Current bench is highly optimized for full-stack synthesis.");
+      }
       setIsOptimizing(false);
     }, 1500);
   };
@@ -303,7 +314,9 @@ const TeamStack = () => {
           <span className="material-symbols-outlined text-secondary" data-icon="mood">mood</span>
           <div className="mt-auto">
             <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Vibe Score</p>
-            <p className="text-4xl font-headline font-black text-on-surface tracking-tighter">88</p>
+            <p className="text-4xl font-headline font-black text-on-surface tracking-tighter">
+                {analytics ? Math.min(98, Math.round((analytics.average_score + 80) / 2)) : '88'}
+            </p>
           </div>
         </div>
         
