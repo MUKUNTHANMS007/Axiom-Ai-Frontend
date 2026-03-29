@@ -114,7 +114,7 @@ const Support = () => {
               <div className="space-y-4 mb-6">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold text-white uppercase tracking-tight">Post Your Request</h3>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Relay direct to: mukunthanthebest@gmail.com</p>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Relay direct to: <span className="lowercase text-primary/60">mukunthanthebest@gmail.com</span></p>
                 </div>
                 {error && (
                   <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 text-[10px] text-rose-500 font-bold uppercase tracking-widest">
