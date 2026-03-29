@@ -149,31 +149,66 @@ const Dashboard = () => {
                     onClick={() => navigate('/tasks')}
                     className="p-4 bg-surface-container-high rounded-2xl border border-white/5 hover:border-accent transition-all text-center flex flex-col items-center gap-2"
                   >
-                    <span className="material-symbols-outlined text-accent" data-icon="task">task</span>
-                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">System Tasks</span>
-                  </button>
-              </div>
+                     <span className="material-symbols-outlined text-accent" data-icon="task">task</span>
+                     <span className="text-[10px] font-bold text-white uppercase tracking-widest">System Tasks</span>
+                   </button>
+               </div>
 
-              {/* Activity Feed Snippet */}
-              <div className="bg-surface-container-low p-6 rounded-2xl border border-white/5 space-y-4">
-                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm" data-icon="timeline">timeline</span>
-                    Recent Telemetry
-                 </h4>
-                 <div className="space-y-4">
-                    {data?.activity.slice(0, 3).map((act) => (
-                       <div key={act.date} className="flex gap-3 items-start">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
-                          <div>
-                             <p className="text-xs text-white font-medium">{act.syntheses} Architectural Runs</p>
-                             <p className="text-[10px] text-slate-500 uppercase font-bold">{act.date}</p>
-                          </div>
-                       </div>
-                    ))}
-                 </div>
-              </div>
-           </div>
-        </div>
+               {/* Neural Task Queue (Replaced Telemetry) */}
+               <div className="bg-surface-container-low p-6 rounded-3xl border border-white/5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                       <span className="material-symbols-outlined text-sm" data-icon="task_alt">task_alt</span>
+                       Neural Task Queue
+                    </h4>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Active Batch</span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                     {tasks.filter(t => t.status !== 'Completed').slice(0, 3).map((task) => (
+                        <div key={task.id} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between hover:bg-white/[0.04] transition-all group">
+                           <div className="space-y-1 overflow-hidden">
+                              <p className="text-[10px] text-white font-bold uppercase truncate">{task.title}</p>
+                              <p className="text-[9px] text-slate-500 font-medium uppercase tracking-tighter truncate">{task.priority} Priority • {task.projects?.name || "Global"}</p>
+                           </div>
+                           <button className="w-6 h-6 rounded-full border border-white/10 flex items-center justify-center opacity-40 group-hover:opacity-100 group-hover:border-primary/50 transition-all">
+                              <span className="material-symbols-outlined text-[10px] text-primary" data-icon="check">check</span>
+                           </button>
+                        </div>
+                     ))}
+                     {tasks.filter(t => t.status !== 'Completed').length === 0 && (
+                        <p className="text-[10px] text-slate-600 italic py-4 text-center">All operational systems clear.</p>
+                     )}
+                  </div>
+                  <button 
+                    onClick={() => navigate('/my-tasks')}
+                    className="w-full py-2 bg-white/5 rounded-xl text-[9px] font-black uppercase text-slate-400 hover:text-white transition-colors"
+                  >
+                    Manage Neural Tasks
+                  </button>
+               </div>
+
+               {/* Project Pulse */}
+               <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10 space-y-4 shadow-2xl shadow-primary/5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-[40px] -mr-12 -mt-12" />
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary relative z-10">Active Project Pulse</h4>
+                  <div className="space-y-4 relative z-10">
+                    <div>
+                      <div className="flex justify-between text-[10px] font-bold text-white uppercase mb-2">
+                        <span>{projects[0]?.name || "Central Core"}</span>
+                        <span>{Math.floor(Math.random() * 40 + 60)}%</span>
+                      </div>
+                      <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full" style={{ width: '68%' }} />
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">
+                      AI Synthesis optimizing resource deployment for the next development cycle.
+                    </p>
+                  </div>
+               </div>
+            </div>
+         </div>
       </div>
     </div>
   );

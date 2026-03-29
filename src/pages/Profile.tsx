@@ -240,15 +240,18 @@ const Profile = () => {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4 mb-6">
-                                        <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-                                            <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Neural Link Status</p>
-                                            <p className="text-xs font-bold text-white uppercase tracking-widest">Protocol Synchronized</p>
+                                     <div className="space-y-4 mb-6">
+                                        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 relative overflow-hidden group/item">
+                                            <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/item:opacity-10 transition-opacity">
+                                                <Zap className="w-12 h-12 text-primary" />
+                                            </div>
+                                            <p className="text-[9px] text-primary/60 font-black uppercase tracking-tighter mb-1">Architectural Engine Status</p>
+                                            <p className="text-xs font-bold text-white uppercase tracking-widest relative z-10">Protocol Synchronized</p>
                                         </div>
-                                        <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-                                            <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Last Signal Activity</p>
+                                        <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1">
+                                            <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Career Metadata</p>
                                             <p className="text-xs font-bold text-white uppercase tracking-widest">
-                                                {history.length > 0 ? `${new Date(history[0].created_at).toLocaleTimeString()} UTC` : "Carrier Only"}
+                                                {history.length > 0 ? `Active since ${new Date(history[history.length-1].created_at).getFullYear()}` : "New Signal Initialized"}
                                             </p>
                                         </div>
                                     </div>
