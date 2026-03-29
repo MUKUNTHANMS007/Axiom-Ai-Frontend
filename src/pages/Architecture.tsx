@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { analyzeProject, fetchHistory, createProject, createTask, assignTask, type HistoryItem } from '../services/api';
 import { PromptInputBox } from '@/components/ai-prompt-box';
 import { BeamsBackground } from '@/components/ui/beams-background';
@@ -8,6 +8,8 @@ import TechIcon from '@/components/ui/tech-icon';
 
 const Architecture = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get('projectId');
   const [description] = useState('');
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
@@ -77,7 +79,8 @@ const Architecture = () => {
           mvp_roadmap: ["Step 1: Auth and simple real-time sync", "Step 2: Core editor logic", "Step 3: Scaling"]
         };
       } else {
-        result = await analyzeProject({ description: finalDesc }, getUser()?.name);
+        const user = getUser();
+        result = await analyzeProject({ description: finalDesc }, user?.name || user?.id, 'groq/llama-3.3-70b-versatile', projectId || undefined);
       }
 
       navigate('/recommendations', { state: { result } });

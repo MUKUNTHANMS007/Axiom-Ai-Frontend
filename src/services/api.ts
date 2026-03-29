@@ -46,7 +46,7 @@ export interface AnalysisResult {
   };
 }
 
-export const analyzeProject = async (project: ProjectInput, user_id?: string, modelId: string = 'groq/llama-3.3-70b-versatile'): Promise<AnalysisResult> => {
+export const analyzeProject = async (project: ProjectInput, user_id?: string, modelId: string = 'groq/llama-3.3-70b-versatile', project_id?: string): Promise<AnalysisResult> => {
   const response = await fetch(`${API_BASE_URL}/api/v1/analyze`, {
     method: 'POST',
     headers: {
@@ -55,7 +55,8 @@ export const analyzeProject = async (project: ProjectInput, user_id?: string, mo
     body: JSON.stringify({
       project,
       model_id: modelId,
-      user_id: user_id
+      user_id: user_id,
+      project_id: project_id
     }),
   });
 

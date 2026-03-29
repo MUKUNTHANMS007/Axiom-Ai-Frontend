@@ -42,7 +42,7 @@ const Sidebar = ({ onDeploy, isOpen, onClose }: SidebarProps) => {
 
       {/* Sidebar Content */}
       <aside className={cn(
-        "h-screen w-64 fixed top-0 border-r border-border bg-background flex flex-col p-4 gap-2 z-50 transition-all duration-300 transform lg:translate-x-0 lg:left-0",
+        "h-screen w-64 fixed top-0 border-r border-border bg-background flex flex-col p-4 gap-2 z-50 transition-all duration-300 transform lg:translate-x-0 lg:left-0 overflow-y-auto no-scrollbar",
         isOpen ? "translate-x-0 left-0" : "-translate-x-full left-[-256px]"
       )}>
       <div className="mb-8 px-2 flex items-center gap-3">

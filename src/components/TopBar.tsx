@@ -49,7 +49,6 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
         if (projectId) {
            navigate(`/project/${projectId}`);
         }
-        setShowNotifications(false);
       }
     } catch (err) {
       console.error('Invite response failed:', err);
@@ -73,7 +72,6 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
     const projectId = notification.data?.project_id;
     if (projectId) {
       navigate(`/project/${projectId}`);
-      setShowNotifications(false);
     }
   };
 
@@ -119,6 +117,7 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
                 className="absolute right-0 mt-2 w-80 bg-surface-container-low border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
               >
                 <div className="p-4 bg-white/5 border-b border-white/5 flex items-center justify-between">

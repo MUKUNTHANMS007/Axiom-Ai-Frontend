@@ -42,8 +42,18 @@ const Login = ({ initialMode = "signin" }: LoginProps) => {
         
         <SignInBlock initialMode={initialMode} inviteToken={inviteToken} />
         
-        <div className="mt-12 text-center text-[10px] text-slate-600 uppercase tracking-widest font-medium">
-            Powered by Aether AI & Supabase
+        <div className="mt-16 pt-8 border-t border-white/5 space-y-6 max-w-sm mx-auto">
+          <div className="flex justify-center gap-6 text-[10px] text-slate-500 uppercase font-black tracking-[0.2em]">
+            <a href="#" className="hover:text-primary transition-colors">Safety</a>
+            <a href="#" className="hover:text-primary transition-colors">Manifesto</a>
+            <a href="#" className="hover:text-primary transition-colors">Node-JS</a>
+            <a href="#" className="hover:text-primary transition-colors">Uptime</a>
+          </div>
+          <div className="text-center">
+            <p className="text-[9px] text-slate-700 uppercase tracking-[0.3em] font-bold">
+              Autonomous Synthesis Engine <span className="text-primary/40 ml-1">v4.0.2</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
