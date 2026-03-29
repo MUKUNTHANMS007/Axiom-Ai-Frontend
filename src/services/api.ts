@@ -220,6 +220,8 @@ export interface DeployPlatform {
 }
 
 export interface TaskAssignment {
+  status: 'success' | 'error';
+  validation_error?: string | null;
   assigned_to: string;
   confidence: number;
   rationale: string;
@@ -309,6 +311,22 @@ export const fetchProject = async (project_id: string): Promise<Project> => {
   const res = await fetch(`${API_BASE_URL}/api/v1/project/${project_id}`);
   if (!res.ok) throw new Error('Failed to fetch project');
   return res.json();
+};
+
+export const updateProject = async (project_id: string, name: string, description: string): Promise<Project> => {
+    const res = await fetch(`${API_BASE_URL}/api/v1/project/${project_id}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description }),
+    });
+    if (!res.ok) throw new Error('Failed to update project');
+    return res.json();
+};
+
+export const deleteProject = async (project_id: string): Promise<void> => {
+    const res = await fetch(`${API_BASE_URL}/api/v1/project/${project_id}`, {
+        method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete project');
 };
 
 export const removeMember = async (project_id: string, user_id: string): Promise<void> => {

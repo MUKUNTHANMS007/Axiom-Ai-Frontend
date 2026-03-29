@@ -73,7 +73,7 @@ const Settings = () => {
                     .from('User')
                     .select('*')
                     .eq('User Id', userId)
-                    .single();
+                    .maybeSingle();
 
                 if (error) throw error;
 
@@ -112,7 +112,8 @@ const Settings = () => {
 
             const { error: updateError } = await supabase
                 .from('User')
-                .update({
+                .upsert({
+                    'User Id': userId,
                     'User Name': profile.name,
                     'Role': profile.role,
                     'Location': profile.location,

@@ -103,6 +103,13 @@ const Architecture = () => {
     const user = getUser();
     if (!user) return;
 
+    // Helper to ensure the AI's returned name exactly matches a valid team member
+    const sanitizeName = (returnedName: string, allowedProfiles: any[]) => {
+      const cleanTarget = (returnedName || "").split('(')[0].split('/')[0].trim().toLowerCase();
+      const match = allowedProfiles.find(p => p.name.trim().toLowerCase() === cleanTarget);
+      return match ? match.name : user.name; // Fallback to current user if hallucinations occur
+    };
+
     setAddingToProjects(true);
     setAddStatus("Initializing architecture deployment...");
     
@@ -137,7 +144,7 @@ const Architecture = () => {
           project_id: project.id,
           title: taskText.split(':')[0] || `Phase ${i+1}`,
           description: taskText,
-          assigned_to: result.assigned_to,
+          assigned_to: sanitizeName(result.assigned_to, teamProfiles),
           assigned_by: user.name,
           priority: i === 0 ? 'High' : 'Medium',
           ai_confidence: result.confidence,

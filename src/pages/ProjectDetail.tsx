@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   fetchProject, createInvite, searchUsers, assignTask, createTask, fetchProjectTasks, updateTaskStatus, removeMember,
+  updateProject, deleteProject,
   type Project, type Task, type TaskAssignment, type TeamMemberProfile 
 } from '../services/api';
 
@@ -24,6 +25,20 @@ const ProjectDetail = () => {
   const [taskInput, setTaskInput] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
   const [assignment, setAssignment] = useState<TaskAssignment | null>(null);
+  
+  // Hybrid Assignment State
+  const [dispatchMode, setDispatchMode] = useState<'ai' | 'manual'>('ai');
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualDesc, setManualDesc] = useState('');
+  const [manualAssignee, setManualAssignee] = useState('');
+  const [manualPriority, setManualPriority] = useState('medium');
+  const [isCreatingManual, setIsCreatingManual] = useState(false);
+  
+  // Settings State
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('vibe_session') || '{}').user;
@@ -42,6 +57,8 @@ const ProjectDetail = () => {
       ]);
       setProject(projData);
       setTasks(taskData);
+      setEditName(projData.name);
+      setEditDescription(projData.description || '');
     } catch (err) {
       console.error('Failed to load project:', err);
     } finally {
@@ -108,9 +125,14 @@ const ProjectDetail = () => {
       }));
 
       const result = await assignTask(taskInput, profiles);
+      if (result.status === 'error') {
+        alert(`Validation Error: ${result.validation_error}`);
+        return;
+      }
       setAssignment(result);
     } catch (err) {
       console.error('AI assignment failed:', err);
+      alert('Neural sync failed. Please check your network or task description.');
     } finally {
       setIsAssigning(false);
     }
@@ -118,12 +140,22 @@ const ProjectDetail = () => {
 
   const handleConfirmTask = async () => {
     if (!assignment || !projectId || !user?.name) return;
+
+    // Helper to ensure the AI's returned name exactly matches a valid team member
+    const sanitizeName = (returnedName: string, allowedProfiles: any[]) => {
+      const cleanTarget = (returnedName || "").split('(')[0].split('/')[0].trim().toLowerCase();
+      // Try to find an exact match first
+      const match = allowedProfiles.find(p => p.name.trim().toLowerCase() === cleanTarget);
+      // If we found a match among team members, use their exact name. Otherwise, fall back to current user.
+      return match ? match.name : user.name;
+    };
+
     try {
       await createTask({
         project_id: projectId,
         title: taskInput,
         description: assignment.rationale,
-        assigned_to: assignment.assigned_to,
+        assigned_to: sanitizeName(assignment.assigned_to, (project?.project_members || []).map(m => ({ name: m.user_id }))),
         assigned_by: user.name,
         priority: 'medium',
         estimated_effort: assignment.estimated_effort,
@@ -156,6 +188,61 @@ const ProjectDetail = () => {
       loadProjectData(); // Refresh member list
     } catch (err) {
       console.error('Removal failed:', err);
+    }
+  };
+
+  const handleUpdateProject = async () => {
+    if (!projectId || !isOwner) return;
+    setIsUpdating(true);
+    try {
+      const updated = await updateProject(projectId, editName, editDescription);
+      setProject(updated);
+      alert('Project synchronized successfully.');
+    } catch (err) {
+      console.error('Update failed:', err);
+      alert('Failed to sync project metadata.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!projectId || !isOwner) return;
+    if (!confirm("CRITICAL: Permanent deletion protocol requested. This will wipe all project data. Proceed?")) return;
+    
+    setIsDeleting(true);
+    try {
+      await deleteProject(projectId);
+      navigate('/my-projects');
+    } catch (err) {
+      console.error('Deletion failed:', err);
+      alert('Failed to initiate deletion protocol.');
+      setIsDeleting(false);
+    }
+  };
+
+  const handleManualCreate = async () => {
+    if (!projectId || !user?.name || !manualTitle.trim()) return;
+    setIsCreatingManual(true);
+    try {
+      await createTask({
+        project_id: projectId,
+        title: manualTitle,
+        description: manualDesc,
+        assigned_to: manualAssignee || user.name, // Default to self if unassigned
+        assigned_by: user.name,
+        priority: manualPriority,
+      });
+      loadProjectData();
+      setManualTitle('');
+      setManualDesc('');
+      setManualAssignee('');
+      alert('Manual task initialized.');
+    } catch (err) {
+      console.error('Manual creation failed:', err);
+      alert('Initialization error.');
+    } finally {
+      setIsCreatingManual(false);
     }
   };
 
@@ -389,63 +476,154 @@ const ProjectDetail = () => {
 
           {activeTab === 'tasks' && (
             <div className="space-y-8">
-              {/* Task Creation AI Dispatcher (Owner Only) */}
+              {/* Task Creation Hybrid Control (Owner Only) */}
               {isOwner && (
-                <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5">
-                  <h2 className="text-xl font-headline font-bold text-white mb-6 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-sm" data-icon="smart_toy">smart_toy</span>
-                    AI Task Dispatcher
-                  </h2>
-                  <div className="space-y-4">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={taskInput}
-                        onChange={e => setTaskInput(e.target.value)}
-                        placeholder="Describe a task for the team..."
-                        className="flex-grow bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary transition-colors"
-                      />
-                      <button
-                        onClick={handleAIDispatch}
-                        disabled={isAssigning || !taskInput.trim()}
-                        className="bg-primary text-white px-8 rounded-xl font-bold transition-all disabled:opacity-50"
+                <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 space-y-8">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <h2 className="text-xl font-headline font-bold text-white flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-sm" data-icon={dispatchMode === 'ai' ? 'smart_toy' : 'assignment_add'}>
+                        {dispatchMode === 'ai' ? 'smart_toy' : 'assignment_add'}
+                      </span>
+                      {dispatchMode === 'ai' ? 'AI Task Dispatcher' : 'Manual Entry'}
+                    </h2>
+
+                    {/* Mode Toggle */}
+                    <div className="flex bg-black/40 rounded-xl p-1 border border-white/10 w-fit">
+                      <button 
+                        onClick={() => setDispatchMode('ai')}
+                        className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${dispatchMode === 'ai' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-600 hover:text-slate-400'}`}
                       >
-                        {isAssigning ? 'Analysing...' : 'Assign'}
+                        <span className="material-symbols-outlined text-xs" data-icon="auto_awesome">auto_awesome</span>
+                        AI Engine
+                      </button>
+                      <button 
+                        onClick={() => setDispatchMode('manual')}
+                        className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${dispatchMode === 'manual' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-slate-600 hover:text-slate-400'}`}
+                      >
+                        <span className="material-symbols-outlined text-xs" data-icon="person">person</span>
+                        Manual
                       </button>
                     </div>
+                  </div>
 
-                    <AnimatePresence>
-                      {assignment && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mt-4"
-                        >
-                          <div className="flex items-start gap-4 mb-4">
-                            <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center text-sm font-black text-primary flex-shrink-0">
-                              {assignment.assigned_to.charAt(0).toUpperCase()}
+                  <div className="space-y-4">
+                    {dispatchMode === 'ai' ? (
+                      <div className="space-y-4">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={taskInput}
+                            onChange={e => setTaskInput(e.target.value)}
+                            placeholder="Describe a task for the team..."
+                            className="flex-grow bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary transition-colors"
+                          />
+                          <button
+                            onClick={handleAIDispatch}
+                            disabled={isAssigning || !taskInput.trim()}
+                            className="bg-primary text-white px-8 rounded-xl font-bold transition-all disabled:opacity-50"
+                          >
+                            {isAssigning ? 'Analysing...' : 'Assign'}
+                          </button>
+                        </div>
+
+                        <AnimatePresence>
+                          {assignment && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mt-4"
+                            >
+                              <div className="flex items-start gap-4 mb-4">
+                                <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center text-sm font-black text-primary flex-shrink-0">
+                                  {assignment.assigned_to.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="flex-grow">
+                                  <h4 className="text-white font-bold text-lg mb-1">Assigned to: {assignment.assigned_to}</h4>
+                                  <p className="text-slate-400 text-sm italic">"{assignment.rationale}"</p>
+                                </div>
+                                <div className="text-right flex-shrink-0">
+                                  <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-1">Confidence</p>
+                                  <p className="text-2xl font-black text-primary leading-none">{assignment.confidence}%</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between pt-4 border-t border-primary/10">
+                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                                  Estimated Effort: {assignment.estimated_effort}
+                                </span>
+                                <div className="flex gap-2">
+                                  <button onClick={() => setAssignment(null)} className="px-4 py-2 rounded-lg text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-white/5 transition-colors">Discard</button>
+                                  <button onClick={handleConfirmTask} className="px-6 py-2 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/80 transition-colors shadow-lg shadow-primary/20">Confirm Assignment</button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Task Title</label>
+                            <input 
+                              type="text"
+                              value={manualTitle}
+                              onChange={e => setManualTitle(e.target.value)}
+                              placeholder="Optimize DB performance..."
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:outline-none focus:border-white/20 transition-colors"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Task Description</label>
+                            <textarea 
+                              value={manualDesc}
+                              onChange={e => setManualDesc(e.target.value)}
+                              rows={3}
+                              placeholder="Analyze query patterns and index missing fields..."
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:outline-none focus:border-white/20 transition-colors resize-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Assign To Architect</label>
+                            <select 
+                              value={manualAssignee}
+                              onChange={e => setManualAssignee(e.target.value)}
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:outline-none focus:border-white/20 transition-colors"
+                            >
+                              <option value="">(Select Assignee)</option>
+                              {project.project_members?.map(m => (
+                                <option key={m.user_id} value={m.user_id}>{m.user_id}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Complexity</label>
+                              <select 
+                                value={manualPriority}
+                                onChange={e => setManualPriority(e.target.value)}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3 text-[10px] font-bold uppercase text-white focus:outline-none focus:border-white/20 transition-colors"
+                              >
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                              </select>
                             </div>
-                            <div className="flex-grow">
-                              <h4 className="text-white font-bold text-lg mb-1">Assigned to: {assignment.assigned_to}</h4>
-                              <p className="text-slate-400 text-sm italic">"{assignment.rationale}"</p>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                              <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-1">Confidence</p>
-                              <p className="text-2xl font-black text-primary leading-none">{assignment.confidence}%</p>
+                            <div className="flex items-end">
+                              <button 
+                                onClick={handleManualCreate}
+                                disabled={isCreatingManual || !manualTitle.trim()}
+                                className="w-full bg-white text-black py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl shadow-white/5 disabled:opacity-50"
+                              >
+                                {isCreatingManual ? 'Initializing...' : 'Sync Task'}
+                              </button>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between pt-4 border-t border-primary/10">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                              Estimated Effort: {assignment.estimated_effort}
-                            </span>
-                            <div className="flex gap-2">
-                              <button onClick={() => setAssignment(null)} className="px-4 py-2 rounded-lg text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-white/5 transition-colors">Discard</button>
-                              <button onClick={handleConfirmTask} className="px-6 py-2 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/80 transition-colors shadow-lg shadow-primary/20">Confirm Assignment</button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -508,6 +686,92 @@ const ProjectDetail = () => {
                 )}
               </div>
             </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-12"
+            >
+              <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 space-y-8">
+                <div>
+                  <h2 className="text-xl font-headline font-bold text-white mb-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-sm" data-icon="settings">settings</span>
+                    Project Configuration
+                  </h2>
+                  <p className="text-slate-500 text-xs mt-1">Update the technical identity and description of this workspace.</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Project Identifier (Name)</label>
+                    <input 
+                      type="text" 
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary transition-colors font-bold tracking-tight"
+                      placeholder="Enter project name..."
+                      disabled={!isOwner}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Project Synthesis (Description)</label>
+                    <textarea 
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      rows={4}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary transition-colors resize-none leading-relaxed text-sm italic"
+                      placeholder="Enter project description..."
+                      disabled={!isOwner}
+                    />
+                  </div>
+                </div>
+
+                {isOwner && (
+                  <div className="pt-4">
+                    <button 
+                      onClick={handleUpdateProject}
+                      disabled={isUpdating}
+                      className="px-10 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                    >
+                      {isUpdating ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <span className="material-symbols-outlined text-sm" data-icon="sync">sync</span>
+                      )}
+                      Sync Variations
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {isOwner && (
+                <div className="bg-red-500/5 rounded-3xl border border-red-500/20 p-8 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-headline font-bold text-red-400 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm" data-icon="warning">warning</span>
+                      Danger Zone
+                    </h2>
+                    <p className="text-red-400/50 text-[10px] uppercase font-bold tracking-widest mt-1">High Impact Administrative Actions</p>
+                  </div>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 bg-red-500/5 rounded-2xl border border-red-400/10">
+                    <div>
+                      <h4 className="text-white font-bold text-sm mb-1 uppercase tracking-wider">Permanent Deletion</h4>
+                      <p className="text-red-400/40 text-[10px] italic">Wipe all tasks, members, and roadmap data. This cannot be undone.</p>
+                    </div>
+                    <button 
+                      onClick={handleDeleteProject}
+                      disabled={isDeleting}
+                      className="px-8 py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                    >
+                      {isDeleting ? 'Terminating...' : 'Delete Project'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
           )}
         </div>
 

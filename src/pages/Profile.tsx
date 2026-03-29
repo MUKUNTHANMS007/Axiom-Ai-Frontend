@@ -54,7 +54,7 @@ const Profile = () => {
                     .from('User')
                     .select('*')
                     .eq('User Id', targetId)
-                    .single();
+                    .maybeSingle();
 
                 if (error) throw error;
                 setUser(data);
