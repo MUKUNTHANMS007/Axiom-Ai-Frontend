@@ -299,8 +299,6 @@ const Settings = () => {
                                 className="w-full h-full"
                             >
                                 <div className="glass-card rounded-[2rem] p-8 lg:p-12 relative overflow-hidden border-border/5">
-                                    {/* Decorative subtle glow */}
-                                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
 
                                     {activeTab === "profile" && (
                                         <div className="space-y-8">

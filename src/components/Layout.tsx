@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import BottomNavBar from './BottomNavBar';
 import { BlueprintExporter } from './blueprint-exporter';
+import { BeamsBackground } from './ui/beams-background';
 
 const Layout = () => {
   const [isExporting, setIsExporting] = useState(false);
@@ -16,7 +17,8 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-on-surface font-body overflow-x-hidden">
+    <div className="min-h-screen bg-black text-on-surface font-body overflow-x-hidden relative">
+      <BeamsBackground className="fixed inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen" />
       <Sidebar 
         onDeploy={() => triggerExport()} 
         isOpen={isSidebarOpen}

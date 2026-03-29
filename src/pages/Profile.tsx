@@ -109,12 +109,7 @@ const Profile = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground pb-20 transition-colors duration-500">
-            {/* dynamic background glow */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px]"></div>
-                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px]"></div>
-            </div>
+        <div className="min-h-screen bg-transparent text-foreground pb-20 transition-colors duration-500 relative">
 
             <main className="relative z-10 max-w-5xl mx-auto px-6 pt-12">
                 {/* Hero section */}

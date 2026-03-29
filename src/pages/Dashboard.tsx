@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchAnalytics, fetchProjects, fetchUserTasks, type AnalyticsData, type Project, type Task } from '../services/api';
-import { BeamsBackground } from '@/components/ui/beams-background';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -41,7 +40,6 @@ const Dashboard = () => {
 
   return (
     <div className="flex-grow min-h-screen relative flex flex-col p-6 lg:p-12 max-w-7xl mx-auto w-full space-y-12">
-      <BeamsBackground className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen" />
       
       {/* Welcome Header */}
       <section className="relative z-10 space-y-4">
