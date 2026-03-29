@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, LayoutDashboard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { cn } from '@/lib/utils'
 import { useScroll } from 'motion/react'
+import { supabase } from '@/lib/supabase'
 
 const transitionVariants = {
     item: {
@@ -27,6 +28,14 @@ const transitionVariants = {
 }
 
 export function HeroSection() {
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setUser(user);
+        });
+    }, []);
+
     return (
         <>
             <HeroHeader />
@@ -61,8 +70,8 @@ export function HeroSection() {
                                             key={1}
                                             className="bg-primary/20 rounded-[14px] border border-primary/30 p-0.5 shadow-[0_0_20px_rgba(182,160,255,0.2)]">
                                             <Button size="lg" className="rounded-xl px-8 text-base font-bold bg-white text-black hover:bg-primary transition-all hover:text-white" asChild>
-                                                <Link to="/login">
-                                                    <span className="text-nowrap italic">Start Designing</span>
+                                                <Link to={user ? "/dashboard" : "/login"}>
+                                                    <span className="text-nowrap italic">{user ? "Go to Dashboard" : "Start Designing"}</span>
                                                 </Link>
                                             </Button>
                                         </div>
@@ -119,15 +128,16 @@ export function HeroSection() {
 }
 
 const menuItems = [
+    { name: 'Tour', href: '#platform-tour' },
     { name: 'Features', href: '#features' },
     { name: 'Solutions', href: '#solutions' },
-    { name: 'Pricing', href: '#pricing' },
     { name: 'About', href: '#about' },
 ]
 
 export const HeroHeader = () => {
     const [menuState, setMenuState] = React.useState(false)
     const [scrolled, setScrolled] = React.useState(false)
+    const [user, setUser] = useState<any>(null)
 
     const { scrollYProgress } = useScroll()
 
@@ -135,7 +145,20 @@ export const HeroHeader = () => {
         const unsubscribe = scrollYProgress.on('change', (latest) => {
             setScrolled(latest > 0.05)
         })
-        return () => unsubscribe()
+
+        // Check auth status
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setUser(user)
+        })
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null)
+        })
+
+        return () => {
+            unsubscribe()
+            subscription.unsubscribe()
+        }
     }, [scrollYProgress])
 
     return (
@@ -192,8 +215,19 @@ export const HeroHeader = () => {
                                 </ul>
                             </div>
                             <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                                <Button variant="outline" size="sm" asChild><Link to="/login"><span>Login</span></Link></Button>
-                                <Button size="sm" asChild><Link to="/signup"><span>Sign Up</span></Link></Button>
+                                {user ? (
+                                    <Button size="sm" className="gap-2 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20" asChild>
+                                        <Link to="/dashboard">
+                                            <LayoutDashboard size={14} />
+                                            <span>Dashboard</span>
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <>
+                                        <Button variant="outline" size="sm" asChild><Link to="/login"><span>Login</span></Link></Button>
+                                        <Button size="sm" asChild><Link to="/signup"><span>Sign Up</span></Link></Button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
