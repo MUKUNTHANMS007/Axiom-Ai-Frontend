@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 import { createProject, fetchProjects, type Project } from '../services/api';
+import { getUserId } from '@/lib/auth';
+import { motion } from 'framer-motion';
 
 const MyProjects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -15,14 +16,11 @@ const MyProjects = () => {
 
   const user = JSON.parse(localStorage.getItem('vibe_session') || '{}').user;
 
-  useEffect(() => {
-    loadProjects();
-  }, [user?.name]);
-
   const loadProjects = async () => {
-    if (!user?.name) return;
     try {
-      const data = await fetchProjects(user.name);
+      const user_id = await getUserId();
+      if (!user_id) return;
+      const data = await fetchProjects(user_id);
       setProjects(data);
     } catch (err) {
       console.error('Failed to load projects:', err);
@@ -30,6 +28,10 @@ const MyProjects = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();

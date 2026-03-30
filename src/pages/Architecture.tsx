@@ -162,10 +162,10 @@ const Architecture = () => {
         }
       }
 
-      setAddStatus("Deployment success. Syncing workspace...");
+      setAddStatus("Deployment success. Project workspace is now active.");
       setTimeout(() => {
         navigate('/my-projects');
-      }, 1500);
+      }, 2000);
     } catch (err: any) {
       console.error("Architecture deployment failed:", err);
       setError(`Critical Dispatch Failure: ${err.message || "Communication link broken during project creation"}`);

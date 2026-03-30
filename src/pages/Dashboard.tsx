@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchAnalytics, fetchProjects, fetchUserTasks, type AnalyticsData, type Project, type Task } from '../services/api';
+import { getUserId } from '@/lib/auth';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -14,12 +15,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadDashboardData = async () => {
-      if (!user?.name) return;
       try {
+        const user_id = await getUserId();
+        if (!user_id) return;
+
         const [analytics, projs, tsks] = await Promise.all([
-          fetchAnalytics(user.name),
-          fetchProjects(user.name),
-          fetchUserTasks(user.name)
+          fetchAnalytics(user_id),
+          fetchProjects(user_id),
+          fetchUserTasks(user_id)
         ]);
         setData(analytics);
         setProjects(projs);
@@ -29,7 +32,7 @@ const Dashboard = () => {
       }
     };
     loadDashboardData();
-  }, [user?.name]);
+  }, []);
 
   const stats = [
     { label: 'Total Projects', value: projects.length, icon: 'hub', color: 'text-primary' },
