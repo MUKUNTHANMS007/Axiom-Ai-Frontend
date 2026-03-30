@@ -4,7 +4,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { fetchHistory, type HistoryItem, type AnalysisResult } from '@/services/api';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
+import { getUserId } from '@/lib/auth';
 import { FileDown, CheckCircle2, AlertCircle, FileText, Layout, X, Loader2 } from 'lucide-react';
 
 interface BlueprintExporterProps {
@@ -24,10 +24,13 @@ export const BlueprintExporter: React.FC<BlueprintExporterProps> = ({ isOpen, on
           const loadHistory = async () => {
             setLoading(true);
             try {
-              const { data: { user } } = await supabase.auth.getUser();
-              if (!user) return;
+              const user_id = await getUserId();
+              if (!user_id) {
+                 console.warn("Blueprint Exporter: Not authenticated. Cannot fetch records.");
+                 return;
+              }
               
-              const data = await fetchHistory(user.id);
+              const data = await fetchHistory(user_id);
               setHistory(data);
               
               // Auto-select current project if name matches
