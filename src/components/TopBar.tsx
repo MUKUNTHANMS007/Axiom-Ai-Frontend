@@ -206,7 +206,7 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
           <span className="material-symbols-outlined" data-icon="settings">settings</span>
         </button>
 
-        <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/20 overflow-hidden cursor-pointer" onClick={() => navigate('/me')}>
+        <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/20 overflow-hidden">
           {user['Photo URL'] ? (
             <img 
               alt="User Profile" 
