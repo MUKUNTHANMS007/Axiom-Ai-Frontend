@@ -18,9 +18,16 @@ export async function getUserId(): Promise<string | null> {
       if (id) return id;
     }
 
-    // 2. Fallback to Supabase Auth UUID
+    // 2. Fallback to Supabase Auth UUID (Most reliable for new users)
     const { data: { user } } = await supabase.auth.getUser();
     if (user?.id) return user.id;
+
+    // 3. Last fallback: check if there's any other session data
+    const anySession = localStorage.getItem("sb-" + import.meta.env.VITE_SUPABASE_URL?.split(".")[0].split("//")[1] + "-auth-token");
+    if (anySession) {
+       const parsed = JSON.parse(anySession);
+       if (parsed.user?.id) return parsed.user.id;
+    }
   } catch (err) {
     console.error("Critical Failure: Identity resolution failed.", err);
   }
