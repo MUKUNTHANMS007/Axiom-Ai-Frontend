@@ -16,7 +16,6 @@ const Sidebar = ({ onDeploy, isOpen, onClose }: SidebarProps) => {
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-    { name: 'My Profile', path: '/me', icon: 'account_circle' },
     { name: 'My Projects', path: '/my-projects', icon: 'workspaces' },
     { name: 'My Tasks', path: '/my-tasks', icon: 'task_alt' },
     { name: 'Architecture', path: '/architecture', icon: 'architecture' },
