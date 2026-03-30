@@ -19,6 +19,7 @@ export default function PasswordField({
   showChecklist = true,
   allowGenerate = true,
   onChange,
+  value: externalValue,
 }: {
   label?: string
   placeholder?: string
@@ -26,16 +27,20 @@ export default function PasswordField({
   showChecklist?: boolean
   allowGenerate?: boolean
   onChange?: (value: string) => void
+  value?: string
 }) {
   const id = useId()
   const [isVisible, setIsVisible] = useState(false)
-  const [value, setValue] = useState("")
+  const [internalValue, setInternalValue] = useState("")
   const [copied, setCopied] = useState(false)
+
+  // Support both controlled (externalValue) and uncontrolled modes
+  const value = externalValue !== undefined ? externalValue : internalValue
 
   const toggleVisibility = () => setIsVisible((prev) => !prev)
 
   const handleValueChange = (newVal: string) => {
-    setValue(newVal)
+    if (externalValue === undefined) setInternalValue(newVal)
     if (onChange) onChange(newVal)
   }
 

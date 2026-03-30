@@ -289,6 +289,7 @@ const SignInBlock = ({ initialMode = "signin", inviteToken }: SignInBlockProps) 
                                 className="w-full bg-white/5 border-white/10"
                                 showChecklist={mode === "signup"}
                                 allowGenerate={mode === "signup"}
+                                value={formData.password}
                                 onChange={(val: string) => handleInputChange("password", val)}
                             />
                             {errors.password && <p className="text-[10px] text-red-400 ml-1">{errors.password}</p>}

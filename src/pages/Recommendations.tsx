@@ -1,15 +1,19 @@
-import { useLocation, Navigate, useOutletContext } from 'react-router-dom';
+import { useLocation, Navigate, useOutletContext, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { saveStack, fetchSavedStacks, type AnalysisResult } from '../services/api';
+import { saveStack, fetchSavedStacks, createProject, createTask, assignTask, type AnalysisResult } from '../services/api';
+import { getUserId } from '@/lib/auth';
 import RadialOrbitalTimeline from '@/components/ui/radial-orbital-timeline';
 import { Route, PlayCircle } from 'lucide-react';
 import TechIcon from '@/components/ui/tech-icon';
 
 const Recommendations = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const result = location.state?.result as AnalysisResult;
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [addingToProjects, setAddingToProjects] = useState(false);
+  const [addProjectStatus, setAddProjectStatus] = useState<string | null>(null);
   const { onDeploy } = useOutletContext<{ onDeploy: (name: string) => void }>();
 
   // Persistent Save status check on mount
@@ -71,6 +75,51 @@ const Recommendations = () => {
     }
   };
 
+  const handleAddToProjects = async () => {
+    if (!result) return;
+    setAddingToProjects(true);
+    setAddProjectStatus('Initializing workspace...');
+    try {
+      const user_id = await getUserId();
+      if (!user_id) { navigate('/login'); return; }
+      const localSession = localStorage.getItem('vibe_session');
+      const user_name = localSession ? JSON.parse(localSession).user?.name : user_id;
+      const project = await createProject(result.project_title, result.project_summary, user_name);
+      const teamProfiles = [
+        { name: user_name, role: 'Lead Architect', skills: ['Architecture', 'Strategy'] },
+        { name: 'AI System', role: 'Technical Advisor', skills: ['Optimisation', 'Security'] }
+      ];
+      const roadmap = result.mvp_roadmap || [];
+      for (let i = 0; i < roadmap.length; i++) {
+        const taskText = roadmap[i];
+        const stepTitle = taskText.split(':')[0] || `Phase ${i + 1}`;
+        setAddProjectStatus(`Dispatching: ${stepTitle}...`);
+        try {
+          const assigned = await assignTask(taskText, teamProfiles);
+          await createTask({
+            project_id: project.id,
+            title: stepTitle,
+            description: taskText.includes(':') ? taskText.split(':').slice(1).join(':').trim() : taskText,
+            assigned_to: assigned.assigned_to === user_name ? user_id : assigned.assigned_to,
+            assigned_by: user_id,
+            priority: i === 0 ? 'high' : 'medium',
+            ai_confidence: assigned.confidence,
+            ai_rationale: assigned.rationale,
+            estimated_effort: assigned.estimated_effort,
+          });
+        } catch (taskErr) {
+          console.error('Task dispatch failed:', taskText, taskErr);
+        }
+      }
+      setAddProjectStatus('Workspace is live!');
+      setTimeout(() => navigate('/my-projects'), 2000);
+    } catch (err: any) {
+      console.error('Project creation failed:', err);
+      setAddProjectStatus(`Error: ${err.message}`);
+      setAddingToProjects(false);
+    }
+  };
+
   return (
     <section className="p-8 lg:p-12 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
@@ -83,7 +132,7 @@ const Recommendations = () => {
             {result.project_summary}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="bg-surface-container px-4 py-2 rounded border border-outline-variant/20 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500">Confidence</span>
             <span className="text-lg font-headline font-black text-primary">{result.confidence_score}%</span>
@@ -98,6 +147,18 @@ const Recommendations = () => {
             }`}
           >
             {isSaving ? 'Synching...' : saveStatus === 'success' ? 'Vibe Saved' : 'Save Stack'}
+          </button>
+          <button
+            onClick={handleAddToProjects}
+            disabled={addingToProjects}
+            className="px-6 py-2.5 rounded-md font-label text-sm font-bold uppercase tracking-wider bg-white/10 border border-white/10 text-white hover:bg-primary hover:border-primary hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center gap-2 disabled:opacity-50"
+          >
+            {addingToProjects ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <span className="material-symbols-outlined text-sm" data-icon="rocket_launch">rocket_launch</span>
+            )}
+            {addingToProjects ? (addProjectStatus || 'Deploying...') : 'Add to My Projects'}
           </button>
         </div>
       </div>
