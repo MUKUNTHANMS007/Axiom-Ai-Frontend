@@ -15,8 +15,25 @@ const History = () => {
   useEffect(() => {
     async function getHistory() {
       try {
+        // Support both Supabase Auth and Local Vibe Sessions
+        let user_id = null;
+        
         const { data: { user } } = await supabase.auth.getUser();
-        const user_id = user?.id; // Use official Supabase ID
+        if (user) {
+          user_id = user.id;
+        } else {
+          const localSession = localStorage.getItem("vibe_session");
+          if (localSession) {
+            const parsed = JSON.parse(localSession);
+            user_id = parsed.user?.['User Name'] || parsed.user?.id;
+          }
+        }
+
+        if (!user_id) {
+          console.warn('No active session found for history fetch.');
+          setLoading(false);
+          return;
+        }
         
         const data = await fetchHistory(user_id);
         setExplorations(data);
