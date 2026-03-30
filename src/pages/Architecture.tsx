@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { analyzeProject, fetchHistory, createProject, createTask, assignTask, type HistoryItem } from '../services/api';
 import { supabase } from '@/lib/supabase';
+import { getUserId } from '@/lib/auth';
 import { PromptInputBox } from '@/components/ai-prompt-box';
 import { BeamsBackground } from '@/components/ui/beams-background';
 import { motion } from 'framer-motion';
@@ -35,10 +36,10 @@ const Architecture = () => {
   }, []);
 
   const loadHistory = async () => {
-    const user = getUser();
-    if (!user) return;
     try {
-      const data = await fetchHistory(user.name || user.id);
+      const user_id = await getUserId();
+      if (!user_id) return;
+      const data = await fetchHistory(user_id);
       setExplorations(data);
     } catch (err) {
       console.error('Error fetching history:', err);

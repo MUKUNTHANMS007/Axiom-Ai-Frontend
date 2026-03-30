@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fetchSavedStacks, fetchHistory, assignTask, searchUsers, createInvite, createProject, fetchProject, fetchAnalytics, type TaskAssignment, type AnalyticsData } from '../services/api';
 import TechIcon from '@/components/ui/tech-icon';
 import { supabase } from '@/lib/supabase';
+import { getUserId } from '@/lib/auth';
 
 const TeamStack = () => {
   const [savedStacks, setSavedStacks] = useState<any[]>([]);
@@ -90,13 +91,11 @@ const TeamStack = () => {
   }, []);
 
   const handleViewStack = async (stackName: string) => {
-    const localSession = localStorage.getItem("vibe_session");
-    const user = localSession ? JSON.parse(localSession).user : null;
-    if (!user) return;
-    
-    // Fallback UI to show it's loading could go here if needed, but the network request should be fast.
     try {
-       const history = await fetchHistory(user.name);
+       const user_id = await getUserId();
+       if (!user_id) return;
+       
+       const history = await fetchHistory(user_id);
        const target = history.find(item => item.name === stackName);
        if (target && target.result_json) {
           navigate('/recommendations', { state: { result: target.result_json } });

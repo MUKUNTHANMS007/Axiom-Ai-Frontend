@@ -7,20 +7,20 @@ import { supabase } from './supabase';
  */
 export async function getUserId(): Promise<string | null> {
   try {
-    // 1. Try Supabase Auth first
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user?.id) return user.id;
-
-    // 2. Fallback to Local Vibe Session
+    // 1. Try Local Vibe Session first (most reliable for custom DB keyed by Username)
     const localSession = localStorage.getItem("vibe_session");
     if (localSession) {
       const parsed = JSON.parse(localSession);
       const vibeUser = parsed.user;
       
-      // Some parts of the system use the 'User Name' as the key
-      // and others use 'id'. This handles both gracefully.
-      return vibeUser?.['User Name'] || vibeUser?.id || null;
+      // Prefer Username as it's the primary key in the explorations table
+      const id = vibeUser?.name || vibeUser?.['User Name'] || vibeUser?.id;
+      if (id) return id;
     }
+
+    // 2. Fallback to Supabase Auth UUID
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.id) return user.id;
   } catch (err) {
     console.error("Critical Failure: Identity resolution failed.", err);
   }
