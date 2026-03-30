@@ -11,7 +11,6 @@ const Architecture = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
-  const [description] = useState('');
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,14 +20,6 @@ const Architecture = () => {
   const [addingToProjects, setAddingToProjects] = useState(false);
   const [addStatus, setAddStatus] = useState<string | null>(null);
 
-  // Get user ID from session
-  const getUser = () => {
-    const localSession = localStorage.getItem("vibe_session");
-    if (localSession) {
-      return JSON.parse(localSession).user;
-    }
-    return null;
-  };
 
   useEffect(() => {
     loadHistory();
@@ -48,7 +39,7 @@ const Architecture = () => {
   };
 
   const handleAnalyze = async (isDemo: boolean = false, inputDesc?: string) => {
-    const finalDesc = inputDesc || description;
+    const finalDesc = inputDesc || '';
     if (!finalDesc.trim() && !isDemo) return;
     
     setLoading(true);
@@ -80,8 +71,9 @@ const Architecture = () => {
           mvp_roadmap: ["Step 1: Auth and simple real-time sync", "Step 2: Core editor logic", "Step 3: Scaling"]
         };
       } else {
-        const user = getUser();
-        result = await analyzeProject({ description: finalDesc }, user?.name || user?.id, 'groq/llama-3.3-70b-versatile', projectId || undefined);
+        // ✅ Use canonical getUserId() for consistent identity across sessions
+        const user_id = await getUserId();
+        result = await analyzeProject({ description: finalDesc }, user_id || undefined, 'groq/llama-3.3-70b-versatile', projectId || undefined);
       }
 
       navigate('/recommendations', { state: { result } });
@@ -173,6 +165,8 @@ const Architecture = () => {
       setAddStatus(null);
     }
   };
+
+  // Remove the unused getUser helper since we now use getUserId() everywhere
 
   return (
     <div className="flex-grow min-h-screen relative flex flex-col">
