@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { analyzeProject, fetchHistory, createProject, createTask, assignTask, type HistoryItem } from '../services/api';
-import { supabase } from '@/lib/supabase';
 import { getUserId } from '@/lib/auth';
 import { PromptInputBox } from '@/components/ai-prompt-box';
 import { BeamsBackground } from '@/components/ui/beams-background';
@@ -111,20 +110,20 @@ const Architecture = () => {
     setError(null);
     
     try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
+      const user_id = await getUserId();
+      if (!user_id) {
         navigate('/login');
         return;
       }
 
-      const user_id = authUser.id;
-      const user_name = authUser.user_metadata?.username || authUser.email?.split('@')[0] || 'Architect';
+      const localSession = localStorage.getItem("vibe_session");
+      const user_name = localSession ? JSON.parse(localSession).user?.name : user_id;
 
       // 1. Create the project
       const project = await createProject(
         selectedProject.result_json.project_title,
         selectedProject.result_json.project_summary,
-        user_id // Use UUID
+        user_name // Owner name
       );
 
       setAddStatus(`Project "${project.name}" created. Syncing AI roadmap...`);
